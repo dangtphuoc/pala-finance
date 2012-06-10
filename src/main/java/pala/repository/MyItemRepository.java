@@ -1,10 +1,12 @@
 package pala.repository;
 
+import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import pala.bean.Item;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * @author mh
@@ -20,4 +22,6 @@ public interface MyItemRepository {
     Iterable<Item> findWorldsWithMoons(int moonCount);
 
     Iterable<Item> exploreWorldsBeyond(Item homeWorld);
+    
+    EndResult<Item> findAllItems();
 }

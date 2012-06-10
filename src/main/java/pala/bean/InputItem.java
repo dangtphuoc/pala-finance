@@ -11,44 +11,44 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
  * This is the initial POJO in the Universe.
  */
 @NodeEntity
-public class Item 
+public class InputItem 
 {   
     @GraphId Long id;
     
-    @Indexed
-    private String name;
+    private Item item;
 
-    private String description;
+    private double cost;
 
-    public Item( String name, String description )
+    public InputItem( Item item, double cost )
     {
-        this.name = name;
-        this.description = description;
+        this.item = item;
+        this.cost = cost;
     }
 
-    public Item()
+    public InputItem()
     {
     }
-	public Long getId() {
-		return id;
+
+    public Item getItem() {
+		return item;
 	}
-	
-	public void setId(Long id) {
-		this.id = id;
-	}
-    public String getName()
-    {
-        return name;
-    }
     
-    public String getDescription() {
-		return description;
+    public void setItem(Item item) {
+		this.item = item;
+	}
+    
+    public double getCost() {
+		return cost;
+	}
+    
+    public void setCost(double cost) {
+		this.cost = cost;
 	}
 
     @Override
     public String toString()
     {
-        return name;
+        return String.format("World{name='%s, moons=%n}", item.getName(), this.cost);
     }
 
 	@Override
@@ -61,7 +61,7 @@ public class Item
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		Item other = (Item) obj;
+		InputItem other = (InputItem) obj;
 		if (id == null) return other.id == null;
         return id.equals(other.id);
     }

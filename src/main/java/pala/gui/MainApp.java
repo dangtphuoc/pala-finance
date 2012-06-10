@@ -5,6 +5,11 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,6 +24,10 @@ import javax.swing.JTextField;
 import pala.bean.Item;
 import pala.repository.ApplicationContent;
 import pala.repository.ItemRepositoryImpl;
+import javax.swing.JComboBox;
+import javax.swing.table.DefaultTableModel;
+
+import org.springframework.data.neo4j.conversion.EndResult;
 
 public class MainApp {
 
@@ -83,6 +92,7 @@ public class MainApp {
 				Item item = itemRepo.findItemNamed(txtName.getText());
 				if(item != null) {
 					txtConsole.setText(item.getName() + item.getDescription());
+					((DefaultTableModel)table.getModel()).addRow(new String[]{item.getId().toString(), item.getName(), item.getDescription()});
 					JOptionPane.showMessageDialog(frame, "Added Item successfully.");
 				} else {
 					JOptionPane.showMessageDialog(frame, "Added Item unsuccessfully.");
@@ -101,23 +111,7 @@ public class MainApp {
 		lblDescription.setBounds(10, 42, 71, 14);
 		pnlAdmin.add(lblDescription);
 		
-		String[] columnNames = { "First Name", "Last Name", "Sport",
-				"# of Years", "Vegetarian" };
-
-		Object[][] data = {
-				{ "Kathy", "Smith", "Snowboarding", new Integer(5),
-						new Boolean(false) },
-				{ "John", "Doe", "Rowing", new Integer(3), new Boolean(true) },
-				{ "Sue", "Black", "Knitting", new Integer(2),
-						new Boolean(false) },
-				{ "Jane", "White", "Speed reading", new Integer(20),
-						new Boolean(true) },
-				{ "Joe", "Brown", "Pool", new Integer(10), new Boolean(false) } };
-
-		final JTable table = new JTable(data, columnNames);
-		table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-		table.setFillsViewportHeight(true);
-
+		loadItemTable();
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(10, 189, 397, 139);
@@ -131,14 +125,58 @@ public class MainApp {
 		txtConsole.setColumns(10);
 		
 		JPanel pnlInput = new JPanel();
-		tabbedPane.addTab("New tab", null, pnlInput, null);
+		tabbedPane.addTab("Input", null, pnlInput, null);
 		pnlInput.setLayout(null);
 		
-		JLabel lblNewLabel = new JLabel("Hang muc:");
-		lblNewLabel.setBounds(10, 11, 59, 14);
-		pnlInput.add(lblNewLabel);
+		JLabel lblItem = new JLabel("Item:");
+		lblItem.setBounds(10, 11, 46, 14);
+		pnlInput.add(lblItem);
+		
+		JComboBox cbxItem = new JComboBox();
+		cbxItem = loadCbxItems();
+		cbxItem.setBounds(66, 8, 148, 17);
+		pnlInput.add(cbxItem);
+		
+		JTextField txtCost = new JTextField();
+		txtCost.setBounds(66, 39, 148, 20);
+		pnlInput.add(txtCost);
+		txtCost.setColumns(10);
+		
+		JButton btnAdd_1 = new JButton("Add");
+		btnAdd_1.setBounds(246, 38, 89, 23);
+		pnlInput.add(btnAdd_1);
 		
 		JPanel pnlReport = new JPanel();
 		tabbedPane.addTab("New tab", null, pnlReport, null);
+	}
+
+	private JComboBox<Item> loadCbxItems() {
+		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+		Iterator<Item> items = itemRepo.findAllItems().iterator();
+		Vector<Item> data = new Vector<Item>();
+		while(items.hasNext()) {
+			data.add(items.next());
+		}
+		JComboBox<Item> cbxItem = new JComboBox<Item>(data);
+		return cbxItem;
+	}
+
+	private void loadItemTable() {
+		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+		EndResult<Item> items = itemRepo.findAllItems();
+		String[] columnNames = {"ID", "Name", "Description"};
+		Vector<String> columns = new Vector<String>(Arrays.asList(columnNames));
+		Iterator<Item> iter = items.iterator();
+		Vector<Vector<String>> rows = new Vector<Vector<String>>();
+		while (iter.hasNext()) {
+			Item type = (Item) iter.next();
+			Vector<String> row = new Vector<String>();
+			row.add(type.getId().toString());
+			row.add(type.getName());
+			row.add(type.getDescription());
+			rows.add(row);
+		}
+		
+		table = new JTable(rows, columns);
 	}
 }
