@@ -25,7 +25,7 @@ public class Item
 
     private String description;
     
-    @RelatedTo(type="cost", direction = Direction.BOTH)
+    @RelatedTo(type="item", direction = Direction.BOTH)
     @Fetch
     private Set<InputItem> inputItems;
 

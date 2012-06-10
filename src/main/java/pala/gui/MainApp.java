@@ -184,7 +184,7 @@ public class MainApp {
 				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 				Item item = itemRepo.findItemNamed(txtSearch.getText());
 				for(InputItem inputItem : item.getInputItems()) {
-					System.out.println(inputItem.getCost());
+					System.out.println("Report" + inputItem.getCost());
 				}
 			}
 		});
