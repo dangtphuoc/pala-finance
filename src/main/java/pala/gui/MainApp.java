@@ -21,8 +21,10 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import pala.bean.InputItem;
 import pala.bean.Item;
 import pala.repository.ApplicationContent;
+import pala.repository.InputItemRepositoryImpl;
 import pala.repository.ItemRepositoryImpl;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
@@ -36,6 +38,9 @@ public class MainApp {
 	private JTextField txtDescription;
 	private JTable table;
 	private JTextField txtConsole;
+	private JComboBox cbxItem;
+	private JTextField txtCost;
+	private JTextField txtSearch;
 
 	/**
 	 * Launch the application.
@@ -132,22 +137,58 @@ public class MainApp {
 		lblItem.setBounds(10, 11, 46, 14);
 		pnlInput.add(lblItem);
 		
-		JComboBox cbxItem = new JComboBox();
+		cbxItem = new JComboBox();
 		cbxItem = loadCbxItems();
 		cbxItem.setBounds(66, 8, 148, 17);
 		pnlInput.add(cbxItem);
 		
-		JTextField txtCost = new JTextField();
+		txtCost = new JTextField();
 		txtCost.setBounds(66, 39, 148, 20);
 		pnlInput.add(txtCost);
 		txtCost.setColumns(10);
 		
 		JButton btnAdd_1 = new JButton("Add");
+		btnAdd_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+				Item item = (Item)cbxItem.getSelectedItem();
+				
+				inputItemRepo.addItem(item, Double.parseDouble(txtCost.getText()));
+				
+				EndResult<InputItem> results = inputItemRepo.findAllItems();
+				Iterator<InputItem> iter = results.iterator();
+				while(iter.hasNext()) {
+					InputItem inputItem = iter.next();
+					System.out.println(inputItem.getCost());
+				}
+				
+			}
+		});
 		btnAdd_1.setBounds(246, 38, 89, 23);
 		pnlInput.add(btnAdd_1);
 		
 		JPanel pnlReport = new JPanel();
-		tabbedPane.addTab("New tab", null, pnlReport, null);
+		tabbedPane.addTab("Report", null, pnlReport, null);
+		
+		JLabel lblSearch = new JLabel("Search:");
+		pnlReport.add(lblSearch);
+		
+		txtSearch = new JTextField();
+		pnlReport.add(txtSearch);
+		txtSearch.setColumns(10);
+		
+		JButton btnOk = new JButton("Ok");
+		btnOk.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+				Item item = itemRepo.findItemNamed(txtSearch.getText());
+				for(InputItem inputItem : item.getInputItems()) {
+					System.out.println(inputItem.getCost());
+				}
+			}
+		});
+		pnlReport.add(btnOk);
 	}
 
 	private JComboBox<Item> loadCbxItems() {

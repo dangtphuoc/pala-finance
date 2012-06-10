@@ -1,9 +1,14 @@
 package pala.bean;
 
 
+import java.util.Set;
+
+import org.neo4j.graphdb.Direction;
+import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * A Spring Data Neo4j enhanced World entity.
@@ -19,6 +24,10 @@ public class Item
     private String name;
 
     private String description;
+    
+    @RelatedTo(type="cost", direction = Direction.BOTH)
+    @Fetch
+    private Set<InputItem> inputItems;
 
     public Item( String name, String description )
     {
@@ -44,7 +53,13 @@ public class Item
     public String getDescription() {
 		return description;
 	}
-
+	public Set<InputItem> getInputItems() {
+		return inputItems;
+	}
+	
+	public void setInputItems(Set<InputItem> inputItems) {
+		this.inputItems = inputItems;
+	}
     @Override
     public String toString()
     {
