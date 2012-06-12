@@ -5,8 +5,10 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -29,9 +31,20 @@ import pala.repository.ItemRepositoryImpl;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 
+import net.sf.nachocalendar.CalendarFactory;
+import net.sf.nachocalendar.components.DateField;
+import net.sourceforge.jdatepicker.JDatePanel;
+import net.sourceforge.jdatepicker.JDatePicker;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
+import net.sourceforge.jdatepicker.util.JDatePickerUtil;
+
 import org.springframework.data.neo4j.conversion.EndResult;
+import java.awt.Component;
 
 public class MainApp {
+	
+	private SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 
 	private JFrame frame;
 	private JTextField txtName;
@@ -41,6 +54,8 @@ public class MainApp {
 	private JComboBox cbxItem;
 	private JTextField txtCost;
 	private JTextField txtSearch;
+	private DateField inputDate;
+	private JTable tblInput;
 
 	/**
 	 * Launch the application.
@@ -147,26 +162,36 @@ public class MainApp {
 		pnlInput.add(txtCost);
 		txtCost.setColumns(10);
 		
-		JButton btnAdd_1 = new JButton("Add");
-		btnAdd_1.addActionListener(new ActionListener() {
+		JButton btnInputAdd = new JButton("Add");
+		btnInputAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
 				Item item = (Item)cbxItem.getSelectedItem();
 				
-				inputItemRepo.addItem(item, Double.parseDouble(txtCost.getText()));
+				InputItem inputItem = inputItemRepo.addItem(item, Double.parseDouble(txtCost.getText()), (Date)inputDate.getValue());
 				
-				EndResult<InputItem> results = inputItemRepo.findAllItems();
-				Iterator<InputItem> iter = results.iterator();
-				while(iter.hasNext()) {
-					InputItem inputItem = iter.next();
-					System.out.println(inputItem.getCost());
+				if(inputItem != null) {
+					DefaultTableModel tableModel = (DefaultTableModel)tblInput.getModel();
+					tableModel.addRow(new String[]{inputItem.getId().toString(), inputItem.getItem().getName(), String.valueOf(inputItem.getCost()), sdf.format(inputItem.getDate())});
 				}
 				
 			}
 		});
-		btnAdd_1.setBounds(246, 38, 89, 23);
-		pnlInput.add(btnAdd_1);
+		btnInputAdd.setBounds(243, 67, 89, 23);
+		pnlInput.add(btnInputAdd);
+		
+		inputDate = CalendarFactory.createDateField();
+		inputDate.setBounds(66, 70, 148, 20);
+		pnlInput.add(inputDate);
+		
+		JScrollPane scrollBarInput = new JScrollPane((Component) null);
+		scrollBarInput.setBounds(20, 136, 397, 139);
+		pnlInput.add(scrollBarInput);
+		
+		tblInput = new JTable();
+		loadInputItemTable();
+		scrollBarInput.setViewportView(tblInput);
 		
 		JPanel pnlReport = new JPanel();
 		tabbedPane.addTab("Report", null, pnlReport, null);
@@ -219,5 +244,27 @@ public class MainApp {
 		}
 		
 		table = new JTable(rows, columns);
+	}
+	
+	private void loadInputItemTable() {
+		InputItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+		EndResult<InputItem> items = itemRepo.findAllItems();
+		String[] columnNames = {"ID", "Input Name", "Cost", "Date"};
+		Vector<String> columns = new Vector<String>(Arrays.asList(columnNames));
+		Iterator<InputItem> iter = items.iterator();
+		Vector<Vector<String>> rows = new Vector<Vector<String>>();
+		
+		while (iter.hasNext()) {
+			InputItem type = iter.next();
+			Vector<String> row = new Vector<String>();
+			row.add(type.getId().toString());
+			row.add(type.getItem().getName());
+			row.add(String.valueOf(type.getCost()));
+			String date = type.getDate() != null ? sdf.format(type.getDate()) : "";
+			row.add(date);
+			rows.add(row);
+		}
+		
+		tblInput = new JTable(rows, columns);
 	}
 }
