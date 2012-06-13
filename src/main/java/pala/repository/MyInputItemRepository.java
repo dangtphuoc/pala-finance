@@ -18,6 +18,9 @@ public interface MyInputItemRepository {
 
     @Transactional
     InputItem addItem(Item item, double cost, Date date);
+    
+    @Transactional
+    void deleteInputItem(long id);
 
     InputItem findInputItemNamed(String name);
 

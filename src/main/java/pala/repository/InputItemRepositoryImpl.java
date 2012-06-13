@@ -31,6 +31,12 @@ public class InputItemRepositoryImpl implements MyInputItemRepository {
     	itemRepository.save(createdItem);
     	return createdItem;
     }
+    
+    @Override
+    @Transactional
+    public void deleteInputItem(long id) {
+    	itemRepository.delete(id);
+    }
 
     @Override
     public InputItem findInputItemNamed(String name) {

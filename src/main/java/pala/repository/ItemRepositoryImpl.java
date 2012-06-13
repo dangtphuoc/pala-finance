@@ -32,6 +32,12 @@ public class ItemRepositoryImpl implements MyItemRepository {
         }
     	return createdItem;
     }
+    
+    @Override
+    @Transactional
+    public void deleteItem(long id) {
+        itemRepository.delete(id);
+    }
 
     @Override
     public Item findItemNamed(String name) {

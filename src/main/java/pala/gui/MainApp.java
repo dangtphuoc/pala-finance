@@ -50,12 +50,12 @@ public class MainApp {
 	private JTextField txtName;
 	private JTextField txtDescription;
 	private JTable table;
-	private JTextField txtConsole;
 	private JComboBox cbxItem;
 	private JTextField txtCost;
-	private JTextField txtSearch;
 	private DateField inputDate;
 	private JTable tblInput;
+	private JTable tblReport;
+	private DateField dateFieldReport;
 
 	/**
 	 * Launch the application.
@@ -111,7 +111,6 @@ public class MainApp {
 				itemRepo.addItem(txtName.getText(), txtDescription.getText());
 				Item item = itemRepo.findItemNamed(txtName.getText());
 				if(item != null) {
-					txtConsole.setText(item.getName() + item.getDescription());
 					((DefaultTableModel)table.getModel()).addRow(new String[]{item.getId().toString(), item.getName(), item.getDescription()});
 					JOptionPane.showMessageDialog(frame, "Added Item successfully.");
 				} else {
@@ -134,15 +133,22 @@ public class MainApp {
 		loadItemTable();
 		// Create the scroll pane and add the table to it.
 		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setBounds(10, 189, 397, 139);
+		scrollPane.setBounds(10, 72, 397, 139);
 
 		// Add the scroll pane to this panel.
 		pnlAdmin.add(scrollPane);
 		
-		txtConsole = new JTextField();
-		txtConsole.setBounds(10, 96, 397, 20);
-		pnlAdmin.add(txtConsole);
-		txtConsole.setColumns(10);
+		JButton btnDelete = new JButton("Delete");
+		btnDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				long selectedID = Long.parseLong(((DefaultTableModel)table.getModel()).getValueAt(table.getSelectedRow(), 0).toString());
+				ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+				itemRep.deleteItem(selectedID);
+				((DefaultTableModel)table.getModel()).removeRow(table.getSelectedRow());
+			}
+		});
+		btnDelete.setBounds(10, 229, 89, 23);
+		pnlAdmin.add(btnDelete);
 		
 		JPanel pnlInput = new JPanel();
 		tabbedPane.addTab("Input", null, pnlInput, null);
@@ -195,25 +201,67 @@ public class MainApp {
 		
 		JPanel pnlReport = new JPanel();
 		tabbedPane.addTab("Report", null, pnlReport, null);
+		pnlReport.setLayout(null);
 		
-		JLabel lblSearch = new JLabel("Search:");
-		pnlReport.add(lblSearch);
+		dateFieldReport = CalendarFactory.createDateField();
+		dateFieldReport.setBounds(218, 5, 109, 18);
+		pnlReport.add(dateFieldReport);
 		
-		txtSearch = new JTextField();
-		pnlReport.add(txtSearch);
-		txtSearch.setColumns(10);
-		
-		JButton btnOk = new JButton("Ok");
-		btnOk.addActionListener(new ActionListener() {
+		JButton btnShow = new JButton("show");
+		btnShow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
-				Item item = itemRepo.findItemNamed(txtSearch.getText());
-				for(InputItem inputItem : item.getInputItems()) {
-					System.out.println("Report" + inputItem.getCost());
-				}
+				Date selectedDate = (Date)dateFieldReport.getValue();
+				try {
+					Date firstDateOfMonth = DateUtil.getFirstDay(selectedDate);
+					Date lastDateOfMonth = DateUtil.getLastDay(selectedDate);
+					InputItemRepositoryImpl inputItemRep = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+					Iterator<InputItem> iter = inputItemRep.findAllItems().iterator();
+					List<InputItem> results = new ArrayList<InputItem>();
+					while(iter.hasNext()) {
+						InputItem item = iter.next();
+						if(item.getDate() != null) {
+							if(item.getDate().compareTo(firstDateOfMonth) >= 0 && item.getDate().compareTo(lastDateOfMonth) <= 0) {
+								results.add(item);
+							}
+						}
+					}
+					
+					loadReportTable(results);
+				} catch (Exception e) {
+					e.printStackTrace();
+					JOptionPane.showMessageDialog(frame, e.getMessage());
+				}				
 			}
 		});
-		pnlReport.add(btnOk);
+		btnShow.setBounds(349, 5, 89, 23);
+		pnlReport.add(btnShow);
+		
+		JScrollPane scrollBarReport = new JScrollPane();
+		scrollBarReport.setBounds(59, 74, 389, 247);
+		pnlReport.add(scrollBarReport);
+		
+		tblReport = new JTable();
+		scrollBarReport.setViewportView(tblReport);
+	}
+
+	protected void loadReportTable(List<InputItem> results) {
+		
+		String[] columnNames = {"ID", "Input Name", "Cost", "Date"};
+		Vector<String> columns = new Vector<String>(Arrays.asList(columnNames));
+		
+		Vector<Vector<String>> rows = new Vector<Vector<String>>();
+		
+		for(InputItem inputItem : results) {
+			Vector<String> row = new Vector<String>();
+			row.add(inputItem.getId().toString());
+			row.add(inputItem.getItem().getName());
+			row.add(String.valueOf(inputItem.getCost()));
+			String date = inputItem.getDate() != null ? sdf.format(inputItem.getDate()) : "";
+			row.add(date);
+			rows.add(row);
+		}
+		
+		((DefaultTableModel)tblReport.getModel()).setDataVector(rows, columns);
 	}
 
 	private JComboBox<Item> loadCbxItems() {
