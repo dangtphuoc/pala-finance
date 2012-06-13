@@ -56,6 +56,7 @@ public class MainApp {
 	private JTable tblInput;
 	private JTable tblReport;
 	private DateField dateFieldReport;
+	private JTextField txtTotalCost;
 
 	/**
 	 * Launch the application.
@@ -130,10 +131,10 @@ public class MainApp {
 		lblDescription.setBounds(10, 42, 71, 14);
 		pnlAdmin.add(lblDescription);
 		
-		loadItemTable();
-		// Create the scroll pane and add the table to it.
+		table = new JTable();
 		JScrollPane scrollPane = new JScrollPane(table);
 		scrollPane.setBounds(10, 72, 397, 139);
+		loadItemTable();
 
 		// Add the scroll pane to this panel.
 		pnlAdmin.add(scrollPane);
@@ -144,7 +145,7 @@ public class MainApp {
 				long selectedID = Long.parseLong(((DefaultTableModel)table.getModel()).getValueAt(table.getSelectedRow(), 0).toString());
 				ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 				itemRep.deleteItem(selectedID);
-				((DefaultTableModel)table.getModel()).removeRow(table.getSelectedRow());
+				loadItemTable();
 			}
 		});
 		btnDelete.setBounds(10, 229, 89, 23);
@@ -237,11 +238,21 @@ public class MainApp {
 		pnlReport.add(btnShow);
 		
 		JScrollPane scrollBarReport = new JScrollPane();
-		scrollBarReport.setBounds(59, 74, 389, 247);
+		scrollBarReport.setBounds(10, 39, 428, 247);
 		pnlReport.add(scrollBarReport);
 		
 		tblReport = new JTable();
 		scrollBarReport.setViewportView(tblReport);
+		
+		JLabel lblTotal = new JLabel("Total cost:");
+		lblTotal.setBounds(266, 297, 61, 14);
+		pnlReport.add(lblTotal);
+		
+		txtTotalCost = new JTextField();
+		txtTotalCost.setEditable(false);
+		txtTotalCost.setBounds(352, 294, 86, 20);
+		pnlReport.add(txtTotalCost);
+		txtTotalCost.setColumns(10);
 	}
 
 	protected void loadReportTable(List<InputItem> results) {
@@ -251,17 +262,20 @@ public class MainApp {
 		
 		Vector<Vector<String>> rows = new Vector<Vector<String>>();
 		
+		double totalCost = 0;
 		for(InputItem inputItem : results) {
 			Vector<String> row = new Vector<String>();
 			row.add(inputItem.getId().toString());
 			row.add(inputItem.getItem().getName());
 			row.add(String.valueOf(inputItem.getCost()));
+			totalCost += inputItem.getCost();
 			String date = inputItem.getDate() != null ? sdf.format(inputItem.getDate()) : "";
 			row.add(date);
 			rows.add(row);
 		}
 		
 		((DefaultTableModel)tblReport.getModel()).setDataVector(rows, columns);
+		txtTotalCost.setText(totalCost + "VND");
 	}
 
 	private JComboBox<Item> loadCbxItems() {
@@ -269,7 +283,10 @@ public class MainApp {
 		Iterator<Item> items = itemRepo.findAllItems().iterator();
 		Vector<Item> data = new Vector<Item>();
 		while(items.hasNext()) {
-			data.add(items.next());
+			Item item = items.next();
+			if(item.isActive()) {
+				data.add(item);
+			}
 		}
 		JComboBox<Item> cbxItem = new JComboBox<Item>(data);
 		return cbxItem;
@@ -284,14 +301,16 @@ public class MainApp {
 		Vector<Vector<String>> rows = new Vector<Vector<String>>();
 		while (iter.hasNext()) {
 			Item type = (Item) iter.next();
-			Vector<String> row = new Vector<String>();
-			row.add(type.getId().toString());
-			row.add(type.getName());
-			row.add(type.getDescription());
-			rows.add(row);
+			if(type.isActive()) {
+				Vector<String> row = new Vector<String>();
+				row.add(type.getId().toString());
+				row.add(type.getName());
+				row.add(type.getDescription());
+				rows.add(row);
+			}
 		}
 		
-		table = new JTable(rows, columns);
+		((DefaultTableModel)table.getModel()).setDataVector(rows, columns);
 	}
 	
 	private void loadInputItemTable() {

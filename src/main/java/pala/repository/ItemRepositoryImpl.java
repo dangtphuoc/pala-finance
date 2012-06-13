@@ -36,7 +36,11 @@ public class ItemRepositoryImpl implements MyItemRepository {
     @Override
     @Transactional
     public void deleteItem(long id) {
-        itemRepository.delete(id);
+    	Item item = itemRepository.findOne(id);
+    	if(item != null) {
+    		item.setActive(false);
+    		itemRepository.save(item);
+    	}
     }
 
     @Override

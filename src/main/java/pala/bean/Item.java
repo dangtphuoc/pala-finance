@@ -28,11 +28,14 @@ public class Item
     @RelatedTo(type="item", direction = Direction.BOTH)
     @Fetch
     private Set<InputItem> inputItems;
+    
+    private boolean active;
 
     public Item( String name, String description )
     {
         this.name = name;
         this.description = description;
+        this.active = true;
     }
 
     public Item()
@@ -60,7 +63,25 @@ public class Item
 	public void setInputItems(Set<InputItem> inputItems) {
 		this.inputItems = inputItems;
 	}
-    @Override
+	
+	
+    public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	@Override
     public String toString()
     {
         return name;
