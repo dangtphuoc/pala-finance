@@ -1,14 +1,17 @@
 package pala.repository;
 
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import pala.bean.InputItem;
 import pala.bean.Item;
+import pala.bean.ReportByMonthResult;
 
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author mh

@@ -1,6 +1,7 @@
 package pala.repository;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.neo4j.graphdb.Direction;
@@ -10,55 +11,51 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.transaction.annotation.Transactional;
 
+import pala.bean.IncomeItem;
+import pala.bean.InputItem;
 import pala.bean.Item;
+import pala.gui.IncomeType;
 
 /**
  * Spring Data Neo4j backed application context for Worlds.
  */
-public class ItemRepositoryImpl implements MyItemRepository {
+public class IncomeItemRepositoryImpl implements MyIncomeItemRepository {
 
-    @Autowired private ItemRepository itemRepository;
+    @Autowired private IncomeItemRepository itemRepository;
 
     @Override
     @Transactional
-    public Item addItem(String name, String description) {
+    public IncomeItem addIncomeItem(IncomeType type, double cost, Date date) {
     	
-        Item createdItem = findItemNamed(name);
-        if (createdItem == null) {
-        	createdItem = new Item(name, description);
-        	itemRepository.save(createdItem);
-        }
+    	IncomeItem createdItem = new IncomeItem(type, cost, date);
+    	itemRepository.save(createdItem);
     	return createdItem;
     }
     
     @Override
     @Transactional
-    public void deleteItem(long id) {
-    	Item item = itemRepository.findOne(id);
-    	if(item != null) {
-    		item.setActive(false);
-    		itemRepository.save(item);
-    	}
+    public void deleteIncomeItem(long id) {
+    	itemRepository.delete(id);
     }
 
     @Override
-    public Item findItemNamed(String name) {
+    public IncomeItem findIncomeItemNamed(String name) {
         return itemRepository.findByPropertyValue("name", name);
     }
 
     @Override
-    public Iterable<Item> findWorldsWithMoons(int moonCount) {
+    public Iterable<IncomeItem> findWorldsWithMoons(int moonCount) {
         return itemRepository.findAllByPropertyValue("moon-index", "moons", moonCount);
     }
 
     @Override
-    public Iterable<Item> exploreWorldsBeyond(Item homeWorld) {
+    public Iterable<IncomeItem> exploreWorldsBeyond(Item homeWorld) {
         TraversalDescription traversal = Traversal.description().relationships(withName("REACHABLE_BY_ROCKET"), Direction.OUTGOING);
         return itemRepository.findAllByTraversal(homeWorld, traversal);
     }
 
 	@Override
-	public EndResult<Item> findAllItems() {
+	public EndResult<IncomeItem> findAllItems() {
 		// TODO Auto-generated method stub
 		return itemRepository.findAll();
 	}

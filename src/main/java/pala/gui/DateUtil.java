@@ -5,6 +5,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class DateUtil {
+	public static SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 	public static Date getFirstDay(Date d) throws Exception {
 		Calendar calendar = Calendar.getInstance();
 		calendar.setTime(d);
