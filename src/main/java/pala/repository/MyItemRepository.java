@@ -27,4 +27,9 @@ public interface MyItemRepository {
     Iterable<Item> exploreWorldsBeyond(Item homeWorld);
     
     EndResult<Item> findAllItems();
+
+	Item findByID(long id);
+	
+	@Transactional
+	Item saveItem(Item item);
 }

@@ -3,9 +3,10 @@ package pala.bean;
 
 import java.util.Date;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
-import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
 /**
@@ -23,11 +24,13 @@ public class InputItem
     private double cost;
     
     private Date date;
+    private Date dateTime;
 
-    public InputItem( Item item, double cost, Date date )
+    public InputItem( Item item, double cost, Date dateTime, Date date)
     {
         this.item = item;
         this.cost = cost;
+        this.dateTime = dateTime;
         this.date = date;
     }
 
@@ -57,6 +60,14 @@ public class InputItem
 
 	public void setId(Long id) {
 		this.id = id;
+	}
+
+	public Date getDateTime() {
+		return dateTime;
+	}
+
+	public void setDateTime(Date date) {
+		this.dateTime = date;
 	}
 
 	public Date getDate() {

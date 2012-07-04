@@ -52,7 +52,7 @@ public class TestJForm extends JPanel {
 		add(button1);
 		button1.setBounds(new Rectangle(new Point(80, 15), button1.getPreferredSize()));
 		add(formattedTextField1);
-		formattedTextField1.setBounds(50, 245, 90, formattedTextField1.getPreferredSize().height);
+		formattedTextField1.setBounds(95, 250, 90, formattedTextField1.getPreferredSize().height);
 
 		{ // compute preferred size
 			Dimension preferredSize = new Dimension();

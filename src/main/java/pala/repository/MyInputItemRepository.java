@@ -1,5 +1,6 @@
 package pala.repository;
 
+import org.joda.time.DateTime;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.conversion.EndResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,9 +19,12 @@ import java.util.List;
  * @since 01.04.11
  */
 public interface MyInputItemRepository {
-
+    
     @Transactional
-    InputItem addItem(Item item, double cost, Date date);
+    InputItem addItem(InputItem item);
+    
+    @Transactional
+    InputItem saveInputItem(InputItem item);
     
     @Transactional
     void deleteInputItem(long id);
@@ -32,4 +36,6 @@ public interface MyInputItemRepository {
     Iterable<InputItem> exploreWorldsBeyond(Item homeWorld);
     
     EndResult<InputItem> findAllItems();
+    
+    InputItem findByID(long id);
 }

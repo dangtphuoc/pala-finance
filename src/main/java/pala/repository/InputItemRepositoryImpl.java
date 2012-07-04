@@ -4,6 +4,7 @@ import static org.neo4j.graphdb.DynamicRelationshipType.withName;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.joda.time.DateTime;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.kernel.Traversal;
@@ -22,20 +23,12 @@ import pala.gui.Month;
 public class InputItemRepositoryImpl implements MyInputItemRepository {
 
     @Autowired private InputItemRepository itemRepository;
-
-    @Override
-    @Transactional
-    public InputItem addItem(Item item, double cost, Date date) {
-    	
-    	InputItem createdItem = new InputItem(item, cost, date);
-    	itemRepository.save(createdItem);
-    	return createdItem;
-    }
     
     @Override
     @Transactional
     public void deleteInputItem(long id) {
-    	itemRepository.delete(id);
+    	
+    	itemRepository.delete(itemRepository.findOne(id));
     }
 
     @Override
@@ -57,5 +50,21 @@ public class InputItemRepositoryImpl implements MyInputItemRepository {
 	@Override
 	public EndResult<InputItem> findAllItems() {
 		return itemRepository.findAll();
+	}
+
+	@Override
+	public InputItem addItem(InputItem item) {
+		
+		return itemRepository.save(item);
+	}
+
+	@Override
+	public InputItem findByID(long id) {
+		return itemRepository.findOne(id);
+	}
+
+	@Override
+	public InputItem saveInputItem(InputItem item) {
+		return itemRepository.save(item);
 	}
 }

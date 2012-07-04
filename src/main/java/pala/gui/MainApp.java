@@ -5,9 +5,7 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -17,6 +15,7 @@ import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
@@ -30,9 +29,6 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.DefaultFormatter;
-import javax.swing.text.DefaultFormatterFactory;
-import javax.swing.text.NumberFormatter;
 
 import net.sf.nachocalendar.CalendarFactory;
 import net.sf.nachocalendar.components.DateField;
@@ -46,6 +42,9 @@ import pala.bean.IncomeItem;
 import pala.bean.InputItem;
 import pala.bean.Item;
 import pala.bean.ReportByMonthResult;
+import pala.common.util.TableUtil;
+import pala.gui.dialog.InputItemDialog;
+import pala.gui.dialog.ItemDialog;
 import pala.gui.table.ReportByMonthTableModel;
 import pala.gui.table.ReportTableModel;
 import pala.repository.ApplicationContent;
@@ -55,18 +54,11 @@ import pala.repository.ItemRepository;
 import pala.repository.ItemRepositoryImpl;
 import pala.repository.ReportService;
 
-import javax.swing.JCheckBox;
-
 public class MainApp {
 
 	private JFrame frame;
-	private JTextField txtName;
-	private JTextField txtDescription;
 	private JTable tblItem;
 	private JTable incomeTable;
-	private JComboBox cbxItem;
-	private JFormattedTextField txtCost;
-	private DateField inputDate;
 	private JTable tblInput;
 	private JTable tblReport;
 	private JTable tblReportByMonth;
@@ -119,43 +111,27 @@ public class MainApp {
 		JPanel pnlAdmin = new JPanel();
 		tabbedPane.addTab("Administration", null, pnlAdmin, null);
 		pnlAdmin.setLayout(null);
-		
-		JLabel lblItemName = new JLabel("Item Name:");
-		lblItemName.setBounds(10, 11, 71, 14);
-		pnlAdmin.add(lblItemName);
-		
-		txtName = new JTextField();
-		txtName.setBounds(89, 8, 213, 20);
-		pnlAdmin.add(txtName);
-		txtName.setColumns(10);
 		final ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 		JButton btnAdd = new JButton("Add");
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
-				itemRepo.addItem(txtName.getText(), txtDescription.getText());
-				Item item = itemRepo.findItemNamed(txtName.getText());
-				if(item != null) {
-					loadItemTable();
-					loadCbxItem();
+				ItemDialog dialog = new ItemDialog(frame);
+				dialog.setVisible(true);
+				if(dialog.isOk()) {
+					itemRepo.addItem(dialog.getName(), dialog.getDescription());
+					Item item = itemRepo.findItemNamed(dialog.getName());
+					if(item != null) {
+						loadItemTable();
+					}
 				}
 			}
 		});
-		btnAdd.setBounds(312, 7, 89, 23);
+		btnAdd.setBounds(204, 11, 89, 23);
 		pnlAdmin.add(btnAdd);
-		
-		txtDescription = new JTextField();
-		txtDescription.setBounds(89, 39, 213, 20);
-		pnlAdmin.add(txtDescription);
-		txtDescription.setColumns(10);
-		
-		JLabel lblDescription = new JLabel("Description:");
-		lblDescription.setBounds(10, 42, 71, 14);
-		pnlAdmin.add(lblDescription);
 		
 		tblItem = new JTable();
 		JScrollPane scrollPane = new JScrollPane(tblItem);
-		scrollPane.setBounds(10, 72, 397, 239);
+		scrollPane.setBounds(10, 45, 472, 239);
 
 		// Add the scroll pane to this panel.
 		pnlAdmin.add(scrollPane);
@@ -163,74 +139,106 @@ public class MainApp {
 		JButton btnDelete = new JButton("Delete");
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				long selectedID = Long.parseLong(((DefaultTableModel)tblItem.getModel()).getValueAt(tblItem.getSelectedRow(), 0).toString());
+				long selectedID = TableUtil.getSelectedID(tblItem);
 				ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 				itemRep.deleteItem(selectedID);
 				loadItemTable();
 			}
 		});
-		btnDelete.setBounds(312, 38, 89, 23);
+		btnDelete.setBounds(393, 11, 89, 23);
 		pnlAdmin.add(btnDelete);
+		
+		JButton btnEdit = new JButton("Edit");
+		btnEdit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				long selectedID = TableUtil.getSelectedID(tblItem);
+				if(selectedID != -1) {
+					ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+					Item item = itemRep.findByID(selectedID);
+					ItemDialog dialog = new ItemDialog(frame, item);
+					dialog.setVisible(true);
+					if(dialog.isOk()) {
+						item.setName(dialog.getName());
+						item.setDescription(dialog.getDescription());
+						itemRep.saveItem(item);
+						loadItemTable();
+					}
+				} else  {
+					JOptionPane.showMessageDialog(frame, "Please selected an item to edit");
+				}
+			}
+		});
+		btnEdit.setBounds(300, 11, 89, 23);
+		pnlAdmin.add(btnEdit);
 		
 		JPanel pnlInput = new JPanel();
 		tabbedPane.addTab("Input", null, pnlInput, null);
 		pnlInput.setLayout(null);
 		
-		JLabel lblItem = new JLabel("Item:");
-		lblItem.setBounds(10, 11, 46, 14);
-		pnlInput.add(lblItem);
-		
-		cbxItem = new JComboBox();
-		cbxItem.setBounds(66, 8, 148, 17);
-		pnlInput.add(cbxItem);
-		
-		txtCost = new JFormattedTextField(NumberFormat.getNumberInstance());
-		
-		txtCost.setBounds(66, 39, 148, 20);
-		pnlInput.add(txtCost);
-		txtCost.setColumns(10);
-		
 		JButton btnInputAdd = new JButton("Add");
 		btnInputAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
-				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
-				Item item = (Item)cbxItem.getSelectedItem();
-				
-				long inputCost = ((Number)txtCost.getValue()).longValue();
-				InputItem inputItem = inputItemRepo.addItem(item, inputCost, (Date)inputDate.getValue());
-				
-				if(inputItem != null) {
-					loadInputItemTable();
+				InputItemDialog dialog = new InputItemDialog(frame);
+				dialog.setVisible(true);
+				if(dialog.isOk()) {
+					InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+					InputItem item = dialog.getInputItem();
+					InputItem inputItem = inputItemRepo.addItem(item);
+					
+					if(inputItem != null) {
+						loadInputItemTable();
+					}
 				}
 				
 			}
 		});
-		btnInputAdd.setBounds(224, 67, 89, 23);
+		btnInputAdd.setBounds(120, 11, 89, 23);
 		pnlInput.add(btnInputAdd);
 		
-		inputDate = CalendarFactory.createDateField();
-		inputDate.setBounds(66, 70, 148, 20);
-		pnlInput.add(inputDate);
-		
 		JScrollPane scrollBarInput = new JScrollPane((Component) null);
-		scrollBarInput.setBounds(10, 101, 397, 228);
+		scrollBarInput.setBounds(10, 45, 397, 228);
 		pnlInput.add(scrollBarInput);
 		
 		tblInput = new JTable();
 		scrollBarInput.setViewportView(tblInput);
 		
-		JLabel lblCost = new JLabel("Cost:");
-		lblCost.setBounds(10, 42, 46, 14);
-		pnlInput.add(lblCost);
-		
-		JLabel lblTime = new JLabel("Time:");
-		lblTime.setBounds(10, 71, 46, 14);
-		pnlInput.add(lblTime);
-		
 		JButton btnInputDelete = new JButton("Delete");
-		btnInputDelete.setBounds(318, 67, 89, 23);
+		btnInputDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+				long selectedID = TableUtil.getSelectedID(tblInput);
+				if(selectedID != -1) {
+					inputItemRepo.deleteInputItem(selectedID);
+					loadInputItemTable();
+				}
+			}
+		});
+		btnInputDelete.setBounds(318, 11, 89, 23);
 		pnlInput.add(btnInputDelete);
+		
+		JButton btnEditInputItem = new JButton("Edit");
+		btnEditInputItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+				long selectedID = TableUtil.getSelectedID(tblInput);
+				if(selectedID != -1) {
+					InputItem item = inputItemRepo.findByID(selectedID);
+					InputItemDialog dialog = new InputItemDialog(frame, item);
+					dialog.setVisible(true);
+					if(dialog.isOk()) {
+						
+						item = dialog.getInputItem();
+						InputItem inputItem = inputItemRepo.saveInputItem(item);
+						
+						if(inputItem != null) {
+							loadInputItemTable();
+						}
+					}
+				}
+			}
+		});
+		btnEditInputItem.setBounds(219, 11, 89, 23);
+		pnlInput.add(btnEditInputItem);
 		
 		JPanel panel = new JPanel();
 		tabbedPane.addTab("Income", null, panel, null);
@@ -397,7 +405,6 @@ public class MainApp {
 
 	private void loadAllData() {
 		loadItemTable();
-		loadCbxItem();
 		loadInputItemTable();
 		loadIncomeTable();
 	}
@@ -473,19 +480,6 @@ public class MainApp {
 		txtRemaining.setText(nf.format(remaining));
 	}
 
-	private void loadCbxItem() {
-		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
-		Iterator<Item> items = itemRepo.findAllItems().iterator();
-		DefaultComboBoxModel model = (DefaultComboBoxModel)cbxItem.getModel();
-		model.removeAllElements();
-		while(items.hasNext()) {
-			Item item = items.next();
-			if(item.isActive()) {
-				model.addElement(item);
-			}
-		}
-	}
-
 	private void loadItemTable() {
 		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 		EndResult<Item> items = itemRepo.findAllItems();
@@ -537,4 +531,5 @@ public class MainApp {
 		model.addAll(data);
 		tblReportByMonth.setModel(model);
 	}
+
 }

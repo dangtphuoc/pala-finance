@@ -34,8 +34,8 @@ new FormModel {
 			add( new FormComponent( "javax.swing.JFormattedTextField" ) {
 				name: "formattedTextField1"
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.NullConstraints ) {
-				"x": 50
-				"y": 245
+				"x": 95
+				"y": 250
 				"width": 90
 			} )
 		}, new FormLayoutConstraints( null ) {

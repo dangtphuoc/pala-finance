@@ -63,4 +63,14 @@ public class ItemRepositoryImpl implements MyItemRepository {
 		return itemRepository.findAll();
 	}
 
+	@Override
+	public Item findByID(long id) {
+		return itemRepository.findOne(id);
+	}
+
+	@Override
+	public Item saveItem(Item item) {
+		return itemRepository.save(item);
+	}
+
 }
