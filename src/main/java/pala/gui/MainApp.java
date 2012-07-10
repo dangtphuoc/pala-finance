@@ -1,8 +1,12 @@
 package pala.gui;
 
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
+import java.awt.Graphics2D;
+import java.awt.SplashScreen;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
@@ -53,10 +57,11 @@ import pala.repository.InputItemRepositoryImpl;
 import pala.repository.ItemRepository;
 import pala.repository.ItemRepositoryImpl;
 import pala.repository.ReportService;
+import java.awt.Toolkit;
 
 public class MainApp {
 
-	private JFrame frame;
+	public JFrame frame;
 	private JTable tblItem;
 	private JTable incomeTable;
 	private JTable tblInput;
@@ -81,7 +86,19 @@ public class MainApp {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					final SplashScreen splash = SplashScreen.getSplashScreen();
+			        if (splash == null) {
+			            System.out.println("SplashScreen.getSplashScreen() returned null");
+			            return;
+			        }
+			        Graphics2D g = splash.createGraphics();
+			        if (g == null) {
+			            System.out.println("g is null");
+			            return;
+			        }
+			        
 					MainApp window = new MainApp();
+					splash.close();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -89,6 +106,16 @@ public class MainApp {
 			}
 		});
 	}
+	
+	static void renderSplashFrame(Graphics2D g, int frame) {
+        final String[] comps = {"foo", "bar", "baz"};
+        g.setComposite(AlphaComposite.Clear);
+        g.fillRect(120,140,200,40);
+        g.setPaintMode();
+        g.setColor(Color.BLACK);
+        g.drawString("Loading "+comps[(frame/5)%3]+"...", 120, 150);
+    }
+
 
 	/**
 	 * Create the application.
@@ -102,8 +129,8 @@ public class MainApp {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Phuoc Dang\\git\\pala-finance\\src\\main\\resources\\piggy-bank-icon.png"));
 		frame.setBounds(100, 100, 513, 420);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -131,7 +158,7 @@ public class MainApp {
 		
 		tblItem = new JTable();
 		JScrollPane scrollPane = new JScrollPane(tblItem);
-		scrollPane.setBounds(10, 45, 472, 239);
+		scrollPane.setBounds(10, 45, 472, 298);
 
 		// Add the scroll pane to this panel.
 		pnlAdmin.add(scrollPane);
@@ -192,11 +219,11 @@ public class MainApp {
 				
 			}
 		});
-		btnInputAdd.setBounds(120, 11, 89, 23);
+		btnInputAdd.setBounds(210, 11, 89, 23);
 		pnlInput.add(btnInputAdd);
 		
 		JScrollPane scrollBarInput = new JScrollPane((Component) null);
-		scrollBarInput.setBounds(10, 45, 397, 228);
+		scrollBarInput.setBounds(10, 45, 472, 298);
 		pnlInput.add(scrollBarInput);
 		
 		tblInput = new JTable();
@@ -213,7 +240,7 @@ public class MainApp {
 				}
 			}
 		});
-		btnInputDelete.setBounds(318, 11, 89, 23);
+		btnInputDelete.setBounds(393, 11, 89, 23);
 		pnlInput.add(btnInputDelete);
 		
 		JButton btnEditInputItem = new JButton("Edit");
@@ -237,7 +264,7 @@ public class MainApp {
 				}
 			}
 		});
-		btnEditInputItem.setBounds(219, 11, 89, 23);
+		btnEditInputItem.setBounds(302, 11, 89, 23);
 		pnlInput.add(btnEditInputItem);
 		
 		JPanel panel = new JPanel();
@@ -264,12 +291,12 @@ public class MainApp {
 				}
 			}
 		});
-		btnAddIncome.setBounds(376, 10, 89, 23);
+		btnAddIncome.setBounds(393, 9, 89, 23);
 		panel.add(btnAddIncome);
 		
 		incomeTable = new JTable();
 		JScrollPane scrollPane_1 = new JScrollPane(incomeTable);
-		scrollPane_1.setBounds(10, 95, 455, 248);
+		scrollPane_1.setBounds(10, 41, 472, 302);
 		panel.add(scrollPane_1);
 		
 		dateFieldIncome = CalendarFactory.createDateField();
@@ -314,7 +341,7 @@ public class MainApp {
 		pnlReport.add(btnShow);
 		
 		JScrollPane scrollBarReport = new JScrollPane();
-		scrollBarReport.setBounds(10, 67, 428, 172);
+		scrollBarReport.setBounds(10, 45, 428, 172);
 		pnlReport.add(scrollBarReport);
 		
 		tblReport = new JTable();
@@ -335,11 +362,13 @@ public class MainApp {
 		pnlReport.add(lblTotalIncome);
 		
 		txtTotalIncome = new JTextField();
+		txtTotalIncome.setEditable(false);
 		txtTotalIncome.setBounds(315, 284, 123, 20);
 		pnlReport.add(txtTotalIncome);
 		txtTotalIncome.setColumns(10);
 		
 		txtRemaining = new JTextField();
+		txtRemaining.setEditable(false);
 		txtRemaining.setColumns(10);
 		txtRemaining.setBounds(315, 323, 123, 20);
 		pnlReport.add(txtRemaining);
@@ -377,7 +406,7 @@ public class MainApp {
 		
 		tblReportByMonth = new JTable();
 		JScrollPane scrPnlReportByMonth = new JScrollPane(tblReportByMonth);
-		scrPnlReportByMonth.setBounds(20, 42, 428, 223);
+		scrPnlReportByMonth.setBounds(10, 42, 472, 301);
 		pnlReportByMonth.add(scrPnlReportByMonth);
 		
 		JButton btnReportByMonth = new JButton("Show");
@@ -396,7 +425,7 @@ public class MainApp {
 				loadReportByMonthTable(results);
 			}
 		});
-		btnReportByMonth.setBounds(359, 10, 89, 23);
+		btnReportByMonth.setBounds(393, 10, 89, 23);
 		pnlReportByMonth.add(btnReportByMonth);
 		
 		//fetch all data
