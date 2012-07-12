@@ -159,7 +159,7 @@
           </execution>
         </executions>
         <configuration>
-          <mainClass>pala.gui.MainApp</mainClass>
+          <mainClass>pala.gui.TrayIconDemo</mainClass>
         </configuration>
       </plugin>
 
@@ -171,7 +171,7 @@
           <attach>false</attach>
           <archive>
             <manifest>
-              <mainClass>pala.gui.MainApp</mainClass>
+              <mainClass>pala.gui.TrayIconDemo</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>

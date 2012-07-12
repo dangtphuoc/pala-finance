@@ -35,7 +35,8 @@ public class IncomeItemRepositoryImpl implements MyIncomeItemRepository {
     @Override
     @Transactional
     public void deleteIncomeItem(long id) {
-    	itemRepository.delete(id);
+    	IncomeItem item = itemRepository.findOne(id);
+    	itemRepository.delete(item);
     }
 
     @Override

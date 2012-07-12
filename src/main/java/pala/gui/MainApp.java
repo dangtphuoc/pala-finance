@@ -87,18 +87,17 @@ public class MainApp {
 			public void run() {
 				try {
 					final SplashScreen splash = SplashScreen.getSplashScreen();
-			        if (splash == null) {
-			            System.out.println("SplashScreen.getSplashScreen() returned null");
-			            return;
-			        }
-			        Graphics2D g = splash.createGraphics();
-			        if (g == null) {
-			            System.out.println("g is null");
-			            return;
+			        if (splash != null) {
+			        	Graphics2D g = splash.createGraphics();
+				        if (g == null) {
+				            System.out.println("g is null");
+				            return;
+				        }
 			        }
 			        
 					MainApp window = new MainApp();
-					splash.close();
+					if(splash != null)
+						splash.close();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -273,11 +272,11 @@ public class MainApp {
 		
 		cbxIncome = new JComboBox();
 		cbxIncome.setModel(new DefaultComboBoxModel(IncomeType.values()));
-		cbxIncome.setBounds(93, 10, 129, 20);
+		cbxIncome.setBounds(93, 10, 97, 20);
 		panel.add(cbxIncome);
 		
 		txtIncomeCost = new JFormattedTextField(NumberFormat.getNumberInstance());
-		txtIncomeCost.setBounds(232, 10, 134, 20);
+		txtIncomeCost.setBounds(200, 10, 134, 20);
 		panel.add(txtIncomeCost);
 		
 		JButton btnAddIncome = new JButton("Add");
@@ -291,7 +290,7 @@ public class MainApp {
 				}
 			}
 		});
-		btnAddIncome.setBounds(393, 9, 89, 23);
+		btnAddIncome.setBounds(344, 9, 67, 23);
 		panel.add(btnAddIncome);
 		
 		incomeTable = new JTable();
@@ -302,6 +301,20 @@ public class MainApp {
 		dateFieldIncome = CalendarFactory.createDateField();
 		dateFieldIncome.setBounds(10, 10, 67, 20);
 		panel.add(dateFieldIncome);
+		
+		JButton btnIncomeDelete = new JButton("Delete");
+		btnIncomeDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				IncomeItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(IncomeItemRepositoryImpl.class);
+				long selectedID = TableUtil.getSelectedID(incomeTable);
+				if(selectedID != -1) {
+					inputItemRepo.deleteIncomeItem(selectedID);
+					loadIncomeTable();
+				}
+			}
+		});
+		btnIncomeDelete.setBounds(415, 9, 67, 23);
+		panel.add(btnIncomeDelete);
 		
 		JPanel pnlReport = new JPanel();
 		tabbedPane.addTab("Report", null, pnlReport, null);
@@ -560,5 +573,4 @@ public class MainApp {
 		model.addAll(data);
 		tblReportByMonth.setModel(model);
 	}
-
 }

@@ -29,18 +29,30 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */ 
 
-package misc;  
+package pala.gui;  
 /*
  * TrayIconDemo.java
  */
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URL;
+import java.net.UnknownHostException;
+
 import javax.swing.*;
+
+import pala.gui.MainApp;
+import pala.gui.MainClass;
 
 public class TrayIconDemo {
     public static void main(String[] args) {
+    	
+    	if(checkForExistingInstance()) return;
         /* Use an appropriate Look and Feel */
         try {
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -60,21 +72,55 @@ public class TrayIconDemo {
         //adding TrayIcon.
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                createAndShowGUI();
+            	MainApp window = new MainApp();
+                createAndShowGUI(window);
+                window.frame.setVisible(true);
+                try {
+					Thread t = new MainClass(9595, window);
+					t.start();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
             }
         });
     }
     
-    private static void createAndShowGUI() {
+    private static boolean checkForExistingInstance() {
+    	Socket echoSocket = null;
+        PrintWriter out = null;
+        BufferedReader in = null;
+
+        try {
+            echoSocket = new Socket("localhost", 9595);
+            out = new PrintWriter(echoSocket.getOutputStream(), true);
+            in = new BufferedReader(new InputStreamReader(
+                                        echoSocket.getInputStream()));
+            out.close();
+        	in.close();
+        	echoSocket.close();
+        	return true;
+        } catch (UnknownHostException e) {
+            System.err.println("Don't know about host: taranis.");
+        } catch (IOException e) {
+            System.err.println("Couldn't get I/O for "
+                               + "the connection to: taranis.");
+        }
+        return false;
+	}
+
+	private static void createAndShowGUI(final MainApp window) {
         //Check the SystemTray support
         if (!SystemTray.isSupported()) {
             System.out.println("SystemTray is not supported");
             return;
         }
+        
         final PopupMenu popup = new PopupMenu();
         final TrayIcon trayIcon =
-                new TrayIcon(createImage("images/bulb.gif", "tray icon"));
+                new TrayIcon(createImage("D:/bulb.gif", "tray icon"));
         final SystemTray tray = SystemTray.getSystemTray();
+        TrayIcon[] trayIcons = tray.getTrayIcons();
         
         // Create a popup menu components
         MenuItem aboutItem = new MenuItem("About");
@@ -111,8 +157,9 @@ public class TrayIconDemo {
         
         trayIcon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(null,
-                        "This dialog box is run from System Tray");
+                //JOptionPane.showMessageDialog(null,
+                  //      "This dialog box is run from System Tray");
+				window.frame.setVisible(true);
             }
         });
         
@@ -184,17 +231,19 @@ public class TrayIconDemo {
                 System.exit(0);
             }
         });
+        trayIcon.setImageAutoSize(true);
     }
     
     //Obtain the image URL
     protected static Image createImage(String path, String description) {
-        URL imageURL = TrayIconDemo.class.getResource(path);
+        /*URL imageURL = TrayIconDemo.class.getResource(path);
         
         if (imageURL == null) {
             System.err.println("Resource not found: " + path);
             return null;
         } else {
             return (new ImageIcon(imageURL, description)).getImage();
-        }
+        }*/
+    	return (new ImageIcon(path, description)).getImage();
     }
 }
