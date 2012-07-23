@@ -4,6 +4,7 @@ import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Graphics2D;
 import java.awt.SplashScreen;
@@ -58,6 +59,10 @@ import pala.repository.ItemRepository;
 import pala.repository.ItemRepositoryImpl;
 import pala.repository.ReportService;
 import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 public class MainApp {
 
@@ -86,18 +91,18 @@ public class MainApp {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					final SplashScreen splash = SplashScreen.getSplashScreen();
+					/*final SplashScreen splash = SplashScreen.getSplashScreen();
 			        if (splash != null) {
 			        	Graphics2D g = splash.createGraphics();
 				        if (g == null) {
 				            System.out.println("g is null");
 				            return;
 				        }
-			        }
+			        }*/
 			        
 					MainApp window = new MainApp();
-					if(splash != null)
-						splash.close();
+					/*if(splash != null)
+						splash.close();*/
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -358,6 +363,25 @@ public class MainApp {
 		pnlReport.add(scrollBarReport);
 		
 		tblReport = new JTable();
+		tblReport.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = tblReport.rowAtPoint(e.getPoint());
+				int col = tblReport.columnAtPoint(e.getPoint());
+				if(row >= 0 && col == 4) {
+					String attachedFile = tblReport.getValueAt(row, col).toString();
+					File file = new File("attachment/" + attachedFile);
+					Desktop dt = Desktop.getDesktop();
+					try {
+						dt.open(file);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println(attachedFile);
+				}
+			}
+		});
 		scrollBarReport.setViewportView(tblReport);
 		
 		JLabel lblTotal = new JLabel("Total cost:");
@@ -512,7 +536,13 @@ public class MainApp {
 		double totalIncome = 0;
 		while(iter1.hasNext()) {
 			IncomeItem income = iter1.next();
-			totalIncome += income.getCost();
+			if(income.getDate() != null) {
+				DateTime dateTime = new DateTime(income.getDate());
+				LocalDate ld = dateTime.toLocalDate();
+				if(ld.compareTo(fromDate) >= 0 && ld.compareTo(toDate) <= 0) {
+					totalIncome += income.getCost();
+				}
+			}
 		}
 		
 		txtTotalIncome.setText(nf.format(totalIncome));

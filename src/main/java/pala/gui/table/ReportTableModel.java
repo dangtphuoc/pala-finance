@@ -12,9 +12,9 @@ import pala.gui.DateUtil;
 
 public class ReportTableModel extends AbstractTableModel {
 	
-	private final int ID = 0, ITEM_DATE = 1, ITEM_NAME = 2, COST = 3;
+	private final int ITEM_DATE = 0, ITEM_NAME = 1, COST = 2, DETAIL = 3, ATTACHMENT = 4;
 	
-	private String[] columnNames = {"ID", "Date", "Item Name", "Cost"};
+	private String[] columnNames = {"Date", "Item Name", "Cost", "Detail", "Attachment"};
 	
 	private Vector<InputItem> rowData = new Vector<InputItem>();
 	public ReportTableModel() {
@@ -25,10 +25,7 @@ public class ReportTableModel extends AbstractTableModel {
 		InputItem item = rowData.elementAt(rowIndex);
 		Object returnedValue = "";
 		switch (columnIndex) {
-		case ID:
-			//returnedValue = item.getId().toString();
-			returnedValue = item.getId();
-			break;
+		
 			
 		case ITEM_DATE:
 			//returnedValue = DateUtil.sdf.format(item.getDate());
@@ -44,7 +41,17 @@ public class ReportTableModel extends AbstractTableModel {
 			//returnedValue = NumberFormat.getNumberInstance().format(item.getCost());
 			returnedValue = item.getCost();
 			break;
-
+			
+		case DETAIL:
+			if(item.getDetail() != null)
+				returnedValue = item.getDetail();
+			break;
+			
+		case ATTACHMENT:
+			if(item.getAttachment() != null)
+				returnedValue = item.getAttachment();
+			break;
+			
 		default:
 			break;
 		}

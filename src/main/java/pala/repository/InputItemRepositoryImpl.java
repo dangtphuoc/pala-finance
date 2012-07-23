@@ -1,6 +1,9 @@
 package pala.repository;
 
 import static org.neo4j.graphdb.DynamicRelationshipType.withName;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -8,6 +11,7 @@ import org.joda.time.DateTime;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.kernel.Traversal;
+import org.neo4j.kernel.impl.util.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.conversion.EndResult;
@@ -54,8 +58,20 @@ public class InputItemRepositoryImpl implements MyInputItemRepository {
 
 	@Override
 	public InputItem addItem(InputItem item) {
-		
-		return itemRepository.save(item);
+		InputItem inputItem = itemRepository.save(item);
+		if(inputItem != null && inputItem.getAttachment() != null) {
+			File srcFile = new File(inputItem.getAttachment());
+			File dstFile = new File("attachment/" + inputItem.getId() + "_" + srcFile.getName());
+			try {
+				FileUtils.copyFile(srcFile, dstFile);
+				inputItem.setAttachment(dstFile.getName());
+				itemRepository.save(inputItem);
+			} catch (IOException e) {
+				itemRepository.delete(inputItem);
+				inputItem = null;
+			}
+		}
+		return inputItem;
 	}
 
 	@Override
@@ -65,6 +81,20 @@ public class InputItemRepositoryImpl implements MyInputItemRepository {
 
 	@Override
 	public InputItem saveInputItem(InputItem item) {
-		return itemRepository.save(item);
+		InputItem oldItem = itemRepository.findOne(item.getId());
+		if(!oldItem.getAttachment().equalsIgnoreCase(item.getAttachment())) {
+			File srcFile = new File(item.getAttachment());
+			File dstFile = new File("attachment/" + item.getId() + "_" + srcFile.getName());
+			try {
+				FileUtils.copyFile(srcFile, dstFile);
+				item.setAttachment(dstFile.getName());
+				item = itemRepository.save(item);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			item = itemRepository.save(item);
+		}
+		return item;
 	}
 }

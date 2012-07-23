@@ -1,6 +1,7 @@
 package pala.bean;
 
 
+import java.io.File;
 import java.util.Date;
 
 import org.joda.time.DateTime;
@@ -25,6 +26,8 @@ public class InputItem
     
     private Date date;
     private Date dateTime;
+    private String detail;
+    private String attachment;
 
     public InputItem( Item item, double cost, Date dateTime, Date date)
     {
@@ -76,6 +79,22 @@ public class InputItem
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getDetail() {
+		return detail;
+	}
+
+	public void setDetail(String detail) {
+		this.detail = detail;
+	}
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
 	}
 
 	@Override
