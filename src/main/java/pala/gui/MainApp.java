@@ -63,6 +63,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.awt.FlowLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import javax.swing.SwingConstants;
 
 public class MainApp {
 
@@ -141,9 +145,24 @@ public class MainApp {
 		
 		JPanel pnlAdmin = new JPanel();
 		tabbedPane.addTab("Administration", null, pnlAdmin, null);
-		pnlAdmin.setLayout(null);
 		final ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+		pnlAdmin.setLayout(new BorderLayout(0, 0));
+		
+		tblItem = new JTable();
+		tblItem.setOpaque(false);
+		JScrollPane scrollPane = new JScrollPane(tblItem);
+		scrollPane.setBackground(new Color(255, 0, 0));
+
+		// Add the scroll pane to this panel.
+		pnlAdmin.add(scrollPane, BorderLayout.CENTER);
+		
+		JPanel pnlButtons = new JPanel();
+		pnlButtons.setBackground(new Color(255, 240, 245));
+		FlowLayout fl_pnlButtons = (FlowLayout) pnlButtons.getLayout();
+		fl_pnlButtons.setAlignment(FlowLayout.LEFT);
+		pnlAdmin.add(pnlButtons, BorderLayout.NORTH);
 		JButton btnAdd = new JButton("Add");
+		pnlButtons.add(btnAdd);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				ItemDialog dialog = new ItemDialog(frame);
@@ -157,29 +176,9 @@ public class MainApp {
 				}
 			}
 		});
-		btnAdd.setBounds(204, 11, 89, 23);
-		pnlAdmin.add(btnAdd);
-		
-		tblItem = new JTable();
-		JScrollPane scrollPane = new JScrollPane(tblItem);
-		scrollPane.setBounds(10, 45, 472, 298);
-
-		// Add the scroll pane to this panel.
-		pnlAdmin.add(scrollPane);
-		
-		JButton btnDelete = new JButton("Delete");
-		btnDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				long selectedID = TableUtil.getSelectedID(tblItem);
-				ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
-				itemRep.deleteItem(selectedID);
-				loadItemTable();
-			}
-		});
-		btnDelete.setBounds(393, 11, 89, 23);
-		pnlAdmin.add(btnDelete);
 		
 		JButton btnEdit = new JButton("Edit");
+		pnlButtons.add(btnEdit);
 		btnEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				long selectedID = TableUtil.getSelectedID(tblItem);
@@ -199,55 +198,39 @@ public class MainApp {
 				}
 			}
 		});
-		btnEdit.setBounds(300, 11, 89, 23);
-		pnlAdmin.add(btnEdit);
+		
+		JButton btnDelete = new JButton("Delete");
+		pnlButtons.add(btnDelete);
+		btnDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				long selectedID = TableUtil.getSelectedID(tblItem);
+				ItemRepositoryImpl itemRep = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
+				itemRep.deleteItem(selectedID);
+				loadItemTable();
+			}
+		});
 		
 		JPanel pnlInput = new JPanel();
 		tabbedPane.addTab("Input", null, pnlInput, null);
-		pnlInput.setLayout(null);
-		
-		JButton btnInputAdd = new JButton("Add");
-		btnInputAdd.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				InputItemDialog dialog = new InputItemDialog(frame);
-				dialog.setVisible(true);
-				if(dialog.isOk()) {
-					InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
-					InputItem item = dialog.getInputItem();
-					InputItem inputItem = inputItemRepo.addItem(item);
-					
-					if(inputItem != null) {
-						loadInputItemTable();
-					}
-				}
-				
-			}
-		});
-		btnInputAdd.setBounds(210, 11, 89, 23);
-		pnlInput.add(btnInputAdd);
+		pnlInput.setLayout(new BorderLayout(0, 0));
 		
 		JScrollPane scrollBarInput = new JScrollPane((Component) null);
-		scrollBarInput.setBounds(10, 45, 472, 298);
-		pnlInput.add(scrollBarInput);
+		pnlInput.add(scrollBarInput, BorderLayout.CENTER);
 		
 		tblInput = new JTable();
 		scrollBarInput.setViewportView(tblInput);
 		
-		JButton btnInputDelete = new JButton("Delete");
-		btnInputDelete.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
-				long selectedID = TableUtil.getSelectedID(tblInput);
-				if(selectedID != -1) {
-					inputItemRepo.deleteInputItem(selectedID);
-					loadInputItemTable();
-				}
-			}
-		});
-		btnInputDelete.setBounds(393, 11, 89, 23);
-		pnlInput.add(btnInputDelete);
+		JPanel pnlInputButtons = new JPanel();
+		pnlInputButtons.setBackground(new Color(224, 255, 255));
+		FlowLayout flowLayout = (FlowLayout) pnlInputButtons.getLayout();
+		flowLayout.setAlignment(FlowLayout.LEFT);
+		pnlInput.add(pnlInputButtons, BorderLayout.NORTH);
+		
+		JButton btnInputAdd = new JButton("Add");
+		pnlInputButtons.add(btnInputAdd);
 		
 		JButton btnEditInputItem = new JButton("Edit");
+		pnlInputButtons.add(btnEditInputItem);
 		btnEditInputItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
@@ -268,46 +251,68 @@ public class MainApp {
 				}
 			}
 		});
-		btnEditInputItem.setBounds(302, 11, 89, 23);
-		pnlInput.add(btnEditInputItem);
 		
-		JPanel panel = new JPanel();
-		tabbedPane.addTab("Income", null, panel, null);
-		panel.setLayout(null);
-		
-		cbxIncome = new JComboBox();
-		cbxIncome.setModel(new DefaultComboBoxModel(IncomeType.values()));
-		cbxIncome.setBounds(93, 10, 97, 20);
-		panel.add(cbxIncome);
-		
-		txtIncomeCost = new JFormattedTextField(NumberFormat.getNumberInstance());
-		txtIncomeCost.setBounds(200, 10, 134, 20);
-		panel.add(txtIncomeCost);
-		
-		JButton btnAddIncome = new JButton("Add");
-		btnAddIncome.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				IncomeItemRepositoryImpl incomeItemRep = ApplicationContent.applicationContext.getBean(IncomeItemRepositoryImpl.class);
-				long cost = ((Number)txtIncomeCost.getValue()).longValue();
-				IncomeItem item = incomeItemRep.addIncomeItem((IncomeType)cbxIncome.getSelectedItem(), cost, (Date)dateFieldIncome.getValue());
-				if(item != null) {
-					loadIncomeTable();
+		JButton btnInputDelete = new JButton("Delete");
+		pnlInputButtons.add(btnInputDelete);
+		btnInputDelete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+				long selectedID = TableUtil.getSelectedID(tblInput);
+				if(selectedID != -1) {
+					inputItemRepo.deleteInputItem(selectedID);
+					loadInputItemTable();
 				}
 			}
 		});
-		btnAddIncome.setBounds(344, 9, 67, 23);
-		panel.add(btnAddIncome);
+		btnInputAdd.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputItemDialog dialog = new InputItemDialog(frame);
+				dialog.setVisible(true);
+				if(dialog.isOk()) {
+					InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+					InputItem item = dialog.getInputItem();
+					InputItem inputItem = inputItemRepo.addItem(item);
+					
+					if(inputItem != null) {
+						loadInputItemTable();
+					}
+				}
+				
+			}
+		});
+		
+		JPanel pnlIncome = new JPanel();
+		tabbedPane.addTab("Income", null, pnlIncome, null);
+		pnlIncome.setLayout(new BorderLayout(0, 0));
 		
 		incomeTable = new JTable();
-		JScrollPane scrollPane_1 = new JScrollPane(incomeTable);
-		scrollPane_1.setBounds(10, 41, 472, 302);
-		panel.add(scrollPane_1);
+		JScrollPane scrollPaneIncome = new JScrollPane(incomeTable);
+		pnlIncome.add(scrollPaneIncome);
+		
+		JPanel pnlIncomeButtons = new JPanel();
+		pnlIncomeButtons.setBackground(new Color(224, 255, 255));
+		FlowLayout flowLayout_1 = (FlowLayout) pnlIncomeButtons.getLayout();
+		flowLayout_1.setAlignment(FlowLayout.LEFT);
+		pnlIncome.add(pnlIncomeButtons, BorderLayout.NORTH);
 		
 		dateFieldIncome = CalendarFactory.createDateField();
-		dateFieldIncome.setBounds(10, 10, 67, 20);
-		panel.add(dateFieldIncome);
+		dateFieldIncome.setPreferredSize(new Dimension(100, 18));
+		pnlIncomeButtons.add(dateFieldIncome);
+		
+		cbxIncome = new JComboBox();
+		pnlIncomeButtons.add(cbxIncome);
+		cbxIncome.setModel(new DefaultComboBoxModel(IncomeType.values()));
+		
+		txtIncomeCost = new JFormattedTextField(NumberFormat.getNumberInstance());
+		txtIncomeCost.setMinimumSize(new Dimension(100, 20));
+		txtIncomeCost.setPreferredSize(new Dimension(100, 20));
+		pnlIncomeButtons.add(txtIncomeCost);
+		
+		JButton btnAddIncome = new JButton("Add");
+		pnlIncomeButtons.add(btnAddIncome);
 		
 		JButton btnIncomeDelete = new JButton("Delete");
+		pnlIncomeButtons.add(btnIncomeDelete);
 		btnIncomeDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				IncomeItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(IncomeItemRepositoryImpl.class);
@@ -318,18 +323,95 @@ public class MainApp {
 				}
 			}
 		});
-		btnIncomeDelete.setBounds(415, 9, 67, 23);
-		panel.add(btnIncomeDelete);
+		btnAddIncome.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				IncomeItemRepositoryImpl incomeItemRep = ApplicationContent.applicationContext.getBean(IncomeItemRepositoryImpl.class);
+				long cost = ((Number)txtIncomeCost.getValue()).longValue();
+				IncomeItem item = incomeItemRep.addIncomeItem((IncomeType)cbxIncome.getSelectedItem(), cost, (Date)dateFieldIncome.getValue());
+				if(item != null) {
+					loadIncomeTable();
+				}
+			}
+		});
 		
 		JPanel pnlReport = new JPanel();
+		pnlReport.setBackground(new Color(255, 0, 255));
 		tabbedPane.addTab("Report", null, pnlReport, null);
-		pnlReport.setLayout(null);
+		pnlReport.setLayout(new BorderLayout(0, 0));
+		
+		JScrollPane scrollBarReport = new JScrollPane();
+		scrollBarReport.setBackground(new Color(135, 206, 250));
+		pnlReport.add(scrollBarReport, BorderLayout.CENTER);
+		
+		tblReport = new JTable();
+		tblReport.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row = tblReport.rowAtPoint(e.getPoint());
+				int col = tblReport.columnAtPoint(e.getPoint());
+				if(row >= 0 && col == 4) {
+					String attachedFile = tblReport.getValueAt(row, col).toString();
+					File file = new File("attachment/" + attachedFile);
+					Desktop dt = Desktop.getDesktop();
+					try {
+						dt.open(file);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					System.out.println(attachedFile);
+				}
+			}
+		});
+		scrollBarReport.setViewportView(tblReport);
+		
+		JPanel pnlReportButtons = new JPanel();
+		pnlReportButtons.setBackground(new Color(224, 255, 255));
+		FlowLayout flowLayout_2 = (FlowLayout) pnlReportButtons.getLayout();
+		flowLayout_2.setAlignment(FlowLayout.LEFT);
+		pnlReport.add(pnlReportButtons, BorderLayout.NORTH);
 		
 		dateFieldReport = CalendarFactory.createDateField();
-		dateFieldReport.setBounds(131, 11, 109, 23);
-		pnlReport.add(dateFieldReport);
+		dateFieldReport.setPreferredSize(new Dimension(100, 18));
+		pnlReportButtons.add(dateFieldReport);
+		
+		chxByDate = new JCheckBox("By Date");
+		chxByDate.setBackground(new Color(224, 255, 255));
+		pnlReportButtons.add(chxByDate);
 		
 		JButton btnShow = new JButton("show");
+		pnlReportButtons.add(btnShow);
+		
+		JPanel pnlReportSummary = new JPanel();
+		pnlReport.add(pnlReportSummary, BorderLayout.SOUTH);
+		pnlReportSummary.setLayout(new GridLayout(3, 2, 2, 5));
+		
+		JLabel lblTotal = new JLabel("Total cost:");
+		lblTotal.setHorizontalAlignment(SwingConstants.RIGHT);
+		pnlReportSummary.add(lblTotal);
+		
+		txtTotalCost = new JTextField();
+		pnlReportSummary.add(txtTotalCost);
+		txtTotalCost.setEditable(false);
+		txtTotalCost.setColumns(10);
+		
+		JLabel lblTotalIncome = new JLabel("Total Income:");
+		lblTotalIncome.setHorizontalAlignment(SwingConstants.RIGHT);
+		pnlReportSummary.add(lblTotalIncome);
+		
+		txtTotalIncome = new JTextField();
+		pnlReportSummary.add(txtTotalIncome);
+		txtTotalIncome.setEditable(false);
+		txtTotalIncome.setColumns(10);
+		
+		JLabel lblRemaining = new JLabel("Remaining:");
+		lblRemaining.setHorizontalAlignment(SwingConstants.RIGHT);
+		pnlReportSummary.add(lblRemaining);
+		
+		txtRemaining = new JTextField();
+		pnlReportSummary.add(txtRemaining);
+		txtRemaining.setEditable(false);
+		txtRemaining.setColumns(10);
 		btnShow.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				Date selectedDate = (Date)dateFieldReport.getValue();
@@ -355,98 +437,38 @@ public class MainApp {
 				}				
 			}
 		});
-		btnShow.setBounds(349, 11, 89, 23);
-		pnlReport.add(btnShow);
-		
-		JScrollPane scrollBarReport = new JScrollPane();
-		scrollBarReport.setBounds(10, 45, 428, 172);
-		pnlReport.add(scrollBarReport);
-		
-		tblReport = new JTable();
-		tblReport.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int row = tblReport.rowAtPoint(e.getPoint());
-				int col = tblReport.columnAtPoint(e.getPoint());
-				if(row >= 0 && col == 4) {
-					String attachedFile = tblReport.getValueAt(row, col).toString();
-					File file = new File("attachment/" + attachedFile);
-					Desktop dt = Desktop.getDesktop();
-					try {
-						dt.open(file);
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-					System.out.println(attachedFile);
-				}
-			}
-		});
-		scrollBarReport.setViewportView(tblReport);
-		
-		JLabel lblTotal = new JLabel("Total cost:");
-		lblTotal.setBounds(219, 253, 61, 14);
-		pnlReport.add(lblTotal);
-		
-		txtTotalCost = new JTextField();
-		txtTotalCost.setEditable(false);
-		txtTotalCost.setBounds(315, 250, 120, 20);
-		pnlReport.add(txtTotalCost);
-		txtTotalCost.setColumns(10);
-		
-		JLabel lblTotalIncome = new JLabel("Total Income:");
-		lblTotalIncome.setBounds(218, 287, 89, 14);
-		pnlReport.add(lblTotalIncome);
-		
-		txtTotalIncome = new JTextField();
-		txtTotalIncome.setEditable(false);
-		txtTotalIncome.setBounds(315, 284, 123, 20);
-		pnlReport.add(txtTotalIncome);
-		txtTotalIncome.setColumns(10);
-		
-		txtRemaining = new JTextField();
-		txtRemaining.setEditable(false);
-		txtRemaining.setColumns(10);
-		txtRemaining.setBounds(315, 323, 123, 20);
-		pnlReport.add(txtRemaining);
-		
-		JLabel lblRemaining = new JLabel("Remaining:");
-		lblRemaining.setBounds(218, 326, 89, 14);
-		pnlReport.add(lblRemaining);
-		
-		chxByDate = new JCheckBox("By Date");
-		chxByDate.setBounds(246, 11, 78, 23);
-		pnlReport.add(chxByDate);
 		
 		JPanel pnlReportByMonth = new JPanel();
 		tabbedPane.addTab("Report By Month", null, pnlReportByMonth, null);
-		pnlReportByMonth.setLayout(null);
-		
-		final JComboBox cbxMonth = new JComboBox();
-		cbxMonth.setMaximumRowCount(12);
-		cbxMonth.setModel(new DefaultComboBoxModel(Month.values()));
-		cbxMonth.setBounds(51, 11, 108, 20);
-		pnlReportByMonth.add(cbxMonth);
-		
-		final JComboBox cbxYear = new JComboBox();
-		cbxYear.setModel(new DefaultComboBoxModel(new String[] {"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}));
-		cbxYear.setBounds(218, 11, 114, 20);
-		pnlReportByMonth.add(cbxYear);
-		
-		JLabel lblMonth = new JLabel("Month:");
-		lblMonth.setBounds(10, 14, 39, 14);
-		pnlReportByMonth.add(lblMonth);
-		
-		JLabel lblYear = new JLabel("Year:");
-		lblYear.setBounds(169, 14, 39, 14);
-		pnlReportByMonth.add(lblYear);
+		pnlReportByMonth.setLayout(new BorderLayout(0, 0));
 		
 		tblReportByMonth = new JTable();
 		JScrollPane scrPnlReportByMonth = new JScrollPane(tblReportByMonth);
-		scrPnlReportByMonth.setBounds(10, 42, 472, 301);
 		pnlReportByMonth.add(scrPnlReportByMonth);
 		
+		JPanel pnlReportByMonthButtons = new JPanel();
+		pnlReportByMonthButtons.setBackground(new Color(224, 255, 255));
+		FlowLayout flowLayout_3 = (FlowLayout) pnlReportByMonthButtons.getLayout();
+		flowLayout_3.setAlignment(FlowLayout.LEFT);
+		pnlReportByMonth.add(pnlReportByMonthButtons, BorderLayout.NORTH);
+		
+		JLabel lblMonth = new JLabel("Month:");
+		pnlReportByMonthButtons.add(lblMonth);
+		
+		final JComboBox cbxMonth = new JComboBox();
+		pnlReportByMonthButtons.add(cbxMonth);
+		cbxMonth.setMaximumRowCount(12);
+		cbxMonth.setModel(new DefaultComboBoxModel(Month.values()));
+		
+		JLabel lblYear = new JLabel("Year:");
+		pnlReportByMonthButtons.add(lblYear);
+		
+		final JComboBox cbxYear = new JComboBox();
+		pnlReportByMonthButtons.add(cbxYear);
+		cbxYear.setModel(new DefaultComboBoxModel(new String[] {"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}));
+		
 		JButton btnReportByMonth = new JButton("Show");
+		pnlReportByMonthButtons.add(btnReportByMonth);
 		btnReportByMonth.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ReportService inputRep = ApplicationContent.applicationContext.getBean(ReportService.class);
@@ -462,8 +484,6 @@ public class MainApp {
 				loadReportByMonthTable(results);
 			}
 		});
-		btnReportByMonth.setBounds(393, 10, 89, 23);
-		pnlReportByMonth.add(btnReportByMonth);
 		
 		//fetch all data
 		loadAllData();
