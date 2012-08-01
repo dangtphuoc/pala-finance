@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.repository.NamedIndexRepository;
 import org.springframework.data.neo4j.repository.RelationshipOperationsRepository;
 
 import pala.bean.InputItem;
+import pala.bean.ReportByItemResult;
 import pala.bean.ReportByMonthResult;
 
 import java.util.Date;
@@ -24,5 +25,7 @@ public interface ReportService extends GraphRepository<InputItem>,
 
     @Query("start n=node:__types__(className=\"pala.bean.InputItem\") where n.date >= {0} and n.date <= {1} return n.date, sum(n.cost) order by n.date")
 	public List<ReportByMonthResult> reportByMonth(String fromDate, String toDate);
-
+    
+    @Query("start n=node:__types__(className=\"pala.bean.InputItem\") match n-->item where n.date >= {0} and n.date <= {1} return item.name, sum(n.cost) order by item.name")
+	public List<ReportByItemResult> reportByItem(String fromDate, String toDate);
 }

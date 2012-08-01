@@ -46,10 +46,14 @@ import org.springframework.data.neo4j.conversion.EndResult;
 import pala.bean.IncomeItem;
 import pala.bean.InputItem;
 import pala.bean.Item;
+import pala.bean.ReportByItemResult;
 import pala.bean.ReportByMonthResult;
+import pala.common.util.ErrorConstants;
 import pala.common.util.TableUtil;
 import pala.gui.dialog.InputItemDialog;
 import pala.gui.dialog.ItemDialog;
+import pala.gui.handler.CallBackHandler;
+import pala.gui.table.ReportByItemTableModel;
 import pala.gui.table.ReportByMonthTableModel;
 import pala.gui.table.ReportTableModel;
 import pala.repository.ApplicationContent;
@@ -67,8 +71,10 @@ import java.awt.FlowLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.SwingConstants;
+import javax.swing.BoxLayout;
+import java.util.ResourceBundle;
 
-public class MainApp {
+public class MainApp implements CallBackHandler{
 
 	public JFrame frame;
 	private JTable tblItem;
@@ -87,6 +93,11 @@ public class MainApp {
 	
 	@Autowired
 	ItemRepository itemRepository;
+	private JTable tblReportByItem;
+	private JComboBox cbxMonthByItem;
+	private JComboBox cbxYearByItem;
+	private JComboBox cbxItemByItem;
+	private JTextField txtTotalItemCost;
 
 	/**
 	 * Launch the application.
@@ -144,7 +155,7 @@ public class MainApp {
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
 		
 		JPanel pnlAdmin = new JPanel();
-		tabbedPane.addTab("Administration", null, pnlAdmin, null);
+		tabbedPane.addTab(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.tabAdministration"), null, pnlAdmin, null);
 		final ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 		pnlAdmin.setLayout(new BorderLayout(0, 0));
 		
@@ -161,7 +172,7 @@ public class MainApp {
 		FlowLayout fl_pnlButtons = (FlowLayout) pnlButtons.getLayout();
 		fl_pnlButtons.setAlignment(FlowLayout.LEFT);
 		pnlAdmin.add(pnlButtons, BorderLayout.NORTH);
-		JButton btnAdd = new JButton("Add");
+		JButton btnAdd = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlButtons.add(btnAdd);
 		btnAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -177,7 +188,7 @@ public class MainApp {
 			}
 		});
 		
-		JButton btnEdit = new JButton("Edit");
+		JButton btnEdit = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnEdit.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlButtons.add(btnEdit);
 		btnEdit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -199,7 +210,7 @@ public class MainApp {
 			}
 		});
 		
-		JButton btnDelete = new JButton("Delete");
+		JButton btnDelete = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnDelete.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlButtons.add(btnDelete);
 		btnDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -226,10 +237,10 @@ public class MainApp {
 		flowLayout.setAlignment(FlowLayout.LEFT);
 		pnlInput.add(pnlInputButtons, BorderLayout.NORTH);
 		
-		JButton btnInputAdd = new JButton("Add");
+		JButton btnInputAdd = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlInputButtons.add(btnInputAdd);
 		
-		JButton btnEditInputItem = new JButton("Edit");
+		JButton btnEditInputItem = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnEdit.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlInputButtons.add(btnEditInputItem);
 		btnEditInputItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -252,7 +263,7 @@ public class MainApp {
 			}
 		});
 		
-		JButton btnInputDelete = new JButton("Delete");
+		JButton btnInputDelete = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnDelete.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlInputButtons.add(btnInputDelete);
 		btnInputDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -266,16 +277,10 @@ public class MainApp {
 		});
 		btnInputAdd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				InputItemDialog dialog = new InputItemDialog(frame);
+				InputItemDialog dialog = new InputItemDialog(frame, MainApp.this);
 				dialog.setVisible(true);
 				if(dialog.isOk()) {
-					InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
-					InputItem item = dialog.getInputItem();
-					InputItem inputItem = inputItemRepo.addItem(item);
-					
-					if(inputItem != null) {
-						loadInputItemTable();
-					}
+					//currently, do nothing...
 				}
 				
 			}
@@ -308,10 +313,10 @@ public class MainApp {
 		txtIncomeCost.setPreferredSize(new Dimension(100, 20));
 		pnlIncomeButtons.add(txtIncomeCost);
 		
-		JButton btnAddIncome = new JButton("Add");
+		JButton btnAddIncome = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnAdd.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlIncomeButtons.add(btnAddIncome);
 		
-		JButton btnIncomeDelete = new JButton("Delete");
+		JButton btnIncomeDelete = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnDelete.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlIncomeButtons.add(btnIncomeDelete);
 		btnIncomeDelete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -375,18 +380,18 @@ public class MainApp {
 		dateFieldReport.setPreferredSize(new Dimension(100, 18));
 		pnlReportButtons.add(dateFieldReport);
 		
-		chxByDate = new JCheckBox("By Date");
+		chxByDate = new JCheckBox(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.chxByDate.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		chxByDate.setBackground(new Color(224, 255, 255));
 		pnlReportButtons.add(chxByDate);
 		
-		JButton btnShow = new JButton("show");
+		JButton btnShow = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnShow.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlReportButtons.add(btnShow);
 		
 		JPanel pnlReportSummary = new JPanel();
 		pnlReport.add(pnlReportSummary, BorderLayout.SOUTH);
 		pnlReportSummary.setLayout(new GridLayout(3, 2, 2, 5));
 		
-		JLabel lblTotal = new JLabel("Total cost:");
+		JLabel lblTotal = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblTotal.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblTotal.setHorizontalAlignment(SwingConstants.RIGHT);
 		pnlReportSummary.add(lblTotal);
 		
@@ -395,7 +400,7 @@ public class MainApp {
 		txtTotalCost.setEditable(false);
 		txtTotalCost.setColumns(10);
 		
-		JLabel lblTotalIncome = new JLabel("Total Income:");
+		JLabel lblTotalIncome = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblTotalIncome.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblTotalIncome.setHorizontalAlignment(SwingConstants.RIGHT);
 		pnlReportSummary.add(lblTotalIncome);
 		
@@ -404,7 +409,7 @@ public class MainApp {
 		txtTotalIncome.setEditable(false);
 		txtTotalIncome.setColumns(10);
 		
-		JLabel lblRemaining = new JLabel("Remaining:");
+		JLabel lblRemaining = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblRemaining.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		lblRemaining.setHorizontalAlignment(SwingConstants.RIGHT);
 		pnlReportSummary.add(lblRemaining);
 		
@@ -452,7 +457,7 @@ public class MainApp {
 		flowLayout_3.setAlignment(FlowLayout.LEFT);
 		pnlReportByMonth.add(pnlReportByMonthButtons, BorderLayout.NORTH);
 		
-		JLabel lblMonth = new JLabel("Month:");
+		JLabel lblMonth = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblMonth.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlReportByMonthButtons.add(lblMonth);
 		
 		final JComboBox cbxMonth = new JComboBox();
@@ -460,15 +465,89 @@ public class MainApp {
 		cbxMonth.setMaximumRowCount(12);
 		cbxMonth.setModel(new DefaultComboBoxModel(Month.values()));
 		
-		JLabel lblYear = new JLabel("Year:");
+		JLabel lblYear = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblYear.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlReportByMonthButtons.add(lblYear);
 		
 		final JComboBox cbxYear = new JComboBox();
 		pnlReportByMonthButtons.add(cbxYear);
 		cbxYear.setModel(new DefaultComboBoxModel(new String[] {"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}));
 		
-		JButton btnReportByMonth = new JButton("Show");
+		JButton btnReportByMonth = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnShow.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		pnlReportByMonthButtons.add(btnReportByMonth);
+		
+		JPanel rptReportByItem = new JPanel();
+		tabbedPane.addTab("Report By Item", null, rptReportByItem, null);
+		rptReportByItem.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panel = new JPanel();
+		FlowLayout flowLayout_4 = (FlowLayout) panel.getLayout();
+		flowLayout_4.setAlignment(FlowLayout.LEFT);
+		panel.setBackground(new Color(224, 255, 255));
+		rptReportByItem.add(panel, BorderLayout.NORTH);
+		
+		JLabel label = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblMonth.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		panel.add(label);
+		
+		cbxMonthByItem = new JComboBox();
+		cbxMonthByItem.setModel(new DefaultComboBoxModel(Month.values()));
+		cbxMonthByItem.setMaximumRowCount(12);
+		panel.add(cbxMonthByItem);
+		
+		JLabel label_1 = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblYear.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		panel.add(label_1);
+		
+		cbxYearByItem = new JComboBox();
+		cbxYearByItem.setModel(new DefaultComboBoxModel(new String[] {"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"}));
+		panel.add(cbxYearByItem);
+		
+		JLabel lblItem = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblItem.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		panel.add(lblItem);
+		
+		cbxItemByItem = new JComboBox();
+		cbxItemByItem.setModel(new DefaultComboBoxModel(new String[] {"All"}));
+		panel.add(cbxItemByItem);
+		
+		JButton btnShowByItem = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnShow.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		btnShowByItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				ReportService inputRep = ApplicationContent.applicationContext.getBean(ReportService.class);
+				int year = Integer.parseInt(cbxYearByItem.getSelectedItem().toString());
+				int month = ((Month)cbxMonthByItem.getSelectedItem()).getValue();
+				DateTime selectedDate = new DateTime(year, month, 1, 0, 0, 0);
+				DateTime fromDate = selectedDate.dayOfMonth().withMinimumValue();
+				DateTime toDate = selectedDate.dayOfMonth().withMaximumValue();
+				toDate= toDate.plusDays(1);
+				String sFromDate = String.valueOf(fromDate.getMillis());
+				String sToDate = String.valueOf(toDate.getMillis());
+				List<ReportByItemResult> results = inputRep.reportByItem(sFromDate, sToDate);
+				loadReportByItemTable(results);
+				double totalCost = 0;
+				for(ReportByItemResult item : results) {
+					totalCost += item.getCost();
+				}
+				txtTotalItemCost.setText(String.valueOf(totalCost));
+			}
+		});
+		panel.add(btnShowByItem);
+		
+		JScrollPane scrollPaneReportByItem = new JScrollPane();
+		rptReportByItem.add(scrollPaneReportByItem, BorderLayout.CENTER);
+		
+		tblReportByItem = new JTable();
+		scrollPaneReportByItem.setViewportView(tblReportByItem);
+		
+		JPanel panel_1 = new JPanel();
+		rptReportByItem.add(panel_1, BorderLayout.SOUTH);
+		panel_1.setLayout(new GridLayout(1, 2, 5, 5));
+		
+		JLabel lblTotalItem = new JLabel(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.lblTotal.text")); //$NON-NLS-1$ //$NON-NLS-2$
+		lblTotalItem.setHorizontalAlignment(SwingConstants.RIGHT);
+		panel_1.add(lblTotalItem);
+		
+		txtTotalItemCost = new JTextField();
+		txtTotalItemCost.setEditable(false);
+		panel_1.add(txtTotalItemCost);
+		txtTotalItemCost.setColumns(10);
 		btnReportByMonth.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				ReportService inputRep = ApplicationContent.applicationContext.getBean(ReportService.class);
@@ -616,11 +695,34 @@ public class MainApp {
 		}
 		
 		((DefaultTableModel)tblInput.getModel()).setDataVector(rows, columns);
+		TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(tblInput.getModel());
+		sorter.toggleSortOrder(3);
+		sorter.toggleSortOrder(3);
+		tblInput.setRowSorter(sorter);
 	}
 	
 	private void loadReportByMonthTable(List<ReportByMonthResult> data) {
 		ReportByMonthTableModel model = new ReportByMonthTableModel();
 		model.addAll(data);
 		tblReportByMonth.setModel(model);
+	}
+	
+	private void loadReportByItemTable(List<ReportByItemResult> data) {
+		ReportByItemTableModel model = new ReportByItemTableModel();
+		model.addAll(data);
+		tblReportByItem.setModel(model);
+	}
+
+	@Override
+	public int addInputItem(InputItem inputItem) {
+		InputItemRepositoryImpl inputItemRepo = ApplicationContent.applicationContext.getBean(InputItemRepositoryImpl.class);
+		inputItem = inputItemRepo.addItem(inputItem);
+		
+		if(inputItem != null) {
+			loadInputItemTable();
+			return ErrorConstants.SUCCESS;
+		}
+		return ErrorConstants.FAIL;
+		
 	}
 }

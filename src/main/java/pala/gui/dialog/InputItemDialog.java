@@ -15,6 +15,8 @@ import javax.swing.JTextField;
 
 import pala.bean.InputItem;
 import pala.bean.Item;
+import pala.common.util.ErrorConstants;
+import pala.gui.handler.CallBackHandler;
 import pala.repository.ApplicationContent;
 import pala.repository.ItemRepositoryImpl;
 
@@ -49,6 +51,7 @@ public class InputItemDialog extends JDialog {
 	private File attachedFile;
 	private JFileChooser fc = new JFileChooser();
 	private JTextField txtAttachedFile;
+	private CallBackHandler handler;
 
 	/**
 	 * @wbp.parser.constructor
@@ -77,8 +80,13 @@ public class InputItemDialog extends JDialog {
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setOk(true);
-				setVisible(false);
-				dispose();
+				InputItem inputItem = getInputItem();
+				int result = handler.addInputItem(inputItem);
+				if(result == ErrorConstants.SUCCESS) {
+					clearDialog();
+				}
+				//setVisible(false);
+				//dispose();
 			}
 		});
 		btnOk.setBounds(110, 257, 89, 23);
@@ -150,6 +158,16 @@ public class InputItemDialog extends JDialog {
 		initializeCxbItem();
 	}
 	
+	protected void clearDialog() {
+		cbxItem.setSelectedIndex(0);
+		txtDetail.setText("");
+		txtAttachedFile.setText("");
+		attachedFile = null;
+		txtCost.setText("");
+		dfTime.setValue(new Date());
+		inputItem = new InputItem();
+	}
+
 	private void initializeCxbItem() {
 		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
 		Iterator<Item> items = itemRepo.findAllItems().iterator();
@@ -173,6 +191,11 @@ public class InputItemDialog extends JDialog {
 		txtAttachedFile.setText(item.getAttachment());
 	}
 
+	public InputItemDialog(JFrame parent, CallBackHandler handler) {
+		this(parent);
+		this.handler = handler;
+	}
+	
 	public InputItem getInputItem() {
 		inputItem.setItem((Item) cbxItem.getSelectedItem());
 		inputItem.setCost(((Number)txtCost.getValue()).longValue());
