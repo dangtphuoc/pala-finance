@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
 
 import javax.swing.DefaultComboBoxModel;
@@ -48,14 +49,16 @@ import pala.bean.InputItem;
 import pala.bean.Item;
 import pala.bean.ReportByItemResult;
 import pala.bean.ReportByMonthResult;
-import pala.common.util.ErrorConstants;
-import pala.common.util.TableUtil;
+import pala.common.utillity.DateUtil;
+import pala.common.utillity.ErrorConstants;
+import pala.common.utillity.TableUtil;
 import pala.gui.dialog.InputItemDialog;
 import pala.gui.dialog.ItemDialog;
 import pala.gui.handler.CallBackHandler;
 import pala.gui.table.ReportByItemTableModel;
 import pala.gui.table.ReportByMonthTableModel;
 import pala.gui.table.ReportTableModel;
+import pala.gui.utility.UIUtil;
 import pala.repository.ApplicationContent;
 import pala.repository.IncomeItemRepositoryImpl;
 import pala.repository.InputItemRepositoryImpl;
@@ -147,9 +150,10 @@ public class MainApp implements CallBackHandler{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		//Locale.setDefault(new Locale("vi", "VN"));
 		frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Phuoc Dang\\git\\pala-finance\\src\\main\\resources\\piggy-bank-icon.png"));
-		frame.setBounds(100, 100, 513, 420);
+		frame.setBounds(100, 100, 723, 502);
 		
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		frame.getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -183,6 +187,7 @@ public class MainApp implements CallBackHandler{
 					Item item = itemRepo.findItemNamed(dialog.getName());
 					if(item != null) {
 						loadItemTable();
+						UIUtil.initializeInputComboBox(cbxItemByItem, true);
 					}
 				}
 			}
@@ -203,6 +208,7 @@ public class MainApp implements CallBackHandler{
 						item.setDescription(dialog.getDescription());
 						itemRep.saveItem(item);
 						loadItemTable();
+						UIUtil.initializeInputComboBox(cbxItemByItem, true);
 					}
 				} else  {
 					JOptionPane.showMessageDialog(frame, "Please selected an item to edit");
@@ -507,6 +513,8 @@ public class MainApp implements CallBackHandler{
 		cbxItemByItem.setModel(new DefaultComboBoxModel(new String[] {"All"}));
 		panel.add(cbxItemByItem);
 		
+		UIUtil.initializeInputComboBox(cbxItemByItem, true);
+		
 		JButton btnShowByItem = new JButton(ResourceBundle.getBundle("pala.gui.messages").getString("MainApp.btnShow.text")); //$NON-NLS-1$ //$NON-NLS-2$
 		btnShowByItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -525,7 +533,9 @@ public class MainApp implements CallBackHandler{
 				for(ReportByItemResult item : results) {
 					totalCost += item.getCost();
 				}
-				txtTotalItemCost.setText(String.valueOf(totalCost));
+				
+				NumberFormat nf = NumberFormat.getNumberInstance();
+				txtTotalItemCost.setText(nf.format(totalCost));
 			}
 		});
 		panel.add(btnShowByItem);

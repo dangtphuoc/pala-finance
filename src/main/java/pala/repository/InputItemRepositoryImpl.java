@@ -82,15 +82,22 @@ public class InputItemRepositoryImpl implements MyInputItemRepository {
 	@Override
 	public InputItem saveInputItem(InputItem item) {
 		InputItem oldItem = itemRepository.findOne(item.getId());
-		if(!oldItem.getAttachment().equalsIgnoreCase(item.getAttachment())) {
-			File srcFile = new File(item.getAttachment());
-			File dstFile = new File("attachment/" + item.getId() + "_" + srcFile.getName());
-			try {
-				FileUtils.copyFile(srcFile, dstFile);
-				item.setAttachment(dstFile.getName());
-				item = itemRepository.save(item);
-			} catch (IOException e) {
-				e.printStackTrace();
+		if(item.getAttachment() != null) {
+			if(oldItem.getAttachment() == null || !oldItem.getAttachment().equalsIgnoreCase(item.getAttachment())) {
+				File srcFile = new File(item.getAttachment());
+				File dstFile = new File("attachment/" + item.getId() + "_" + srcFile.getName());
+				try {
+					//delete old attachment
+					if(oldItem.getAttachment() != null) {
+						File oldAttachment = new File (oldItem.getAttachment());
+						oldAttachment.delete();
+					}
+					FileUtils.copyFile(srcFile, dstFile);
+					item.setAttachment(dstFile.getName());
+					item = itemRepository.save(item);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		} else {
 			item = itemRepository.save(item);

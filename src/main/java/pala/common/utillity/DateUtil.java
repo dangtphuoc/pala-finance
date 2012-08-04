@@ -1,4 +1,4 @@
-package pala.gui;
+package pala.common.utillity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

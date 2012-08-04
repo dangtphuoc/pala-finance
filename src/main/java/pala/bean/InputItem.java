@@ -6,9 +6,11 @@ import java.util.Date;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.RelatedTo;
 
 /**
  * A Spring Data Neo4j enhanced World entity.
@@ -20,6 +22,7 @@ public class InputItem
 {   
     @GraphId Long id;
     
+    @RelatedTo(type="item", direction=Direction.OUTGOING)
     @Fetch private Item item;
 
     private double cost;

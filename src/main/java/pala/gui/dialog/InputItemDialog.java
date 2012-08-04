@@ -15,8 +15,9 @@ import javax.swing.JTextField;
 
 import pala.bean.InputItem;
 import pala.bean.Item;
-import pala.common.util.ErrorConstants;
+import pala.common.utillity.ErrorConstants;
 import pala.gui.handler.CallBackHandler;
+import pala.gui.utility.UIUtil;
 import pala.repository.ApplicationContent;
 import pala.repository.ItemRepositoryImpl;
 
@@ -80,13 +81,16 @@ public class InputItemDialog extends JDialog {
 		btnOk.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				setOk(true);
-				InputItem inputItem = getInputItem();
-				int result = handler.addInputItem(inputItem);
-				if(result == ErrorConstants.SUCCESS) {
-					clearDialog();
+				if(handler != null) {
+					InputItem inputItem = getInputItem();
+					int result = handler.addInputItem(inputItem);
+					if(result == ErrorConstants.SUCCESS) {
+						clearDialog();
+					}
+				} else {
+					setVisible(false);
+					dispose();
 				}
-				//setVisible(false);
-				//dispose();
 			}
 		});
 		btnOk.setBounds(110, 257, 89, 23);
@@ -155,7 +159,7 @@ public class InputItemDialog extends JDialog {
 		setSize(505, 407);
 		
 		inputItem = new InputItem();
-		initializeCxbItem();
+		UIUtil.initializeInputComboBox(cbxItem, false);
 	}
 	
 	protected void clearDialog() {
@@ -166,19 +170,6 @@ public class InputItemDialog extends JDialog {
 		txtCost.setText("");
 		dfTime.setValue(new Date());
 		inputItem = new InputItem();
-	}
-
-	private void initializeCxbItem() {
-		ItemRepositoryImpl itemRepo = ApplicationContent.applicationContext.getBean(ItemRepositoryImpl.class);
-		Iterator<Item> items = itemRepo.findAllItems().iterator();
-		DefaultComboBoxModel model = (DefaultComboBoxModel)cbxItem.getModel();
-		model.removeAllElements();
-		while(items.hasNext()) {
-			Item item = items.next();
-			if(item.isActive()) {
-				model.addElement(item);
-			}
-		}
 	}
 
 	public InputItemDialog(JFrame parent, InputItem item) {

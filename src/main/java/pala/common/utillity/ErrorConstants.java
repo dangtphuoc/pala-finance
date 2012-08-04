@@ -1,4 +1,4 @@
-package pala.common.util;
+package pala.common.utillity;
 
 public class ErrorConstants {
 	public static final int SUCCESS = 0;

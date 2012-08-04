@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableModel;
 import pala.bean.InputItem;
 import pala.bean.Item;
 import pala.bean.ReportByMonthResult;
-import pala.gui.DateUtil;
+import pala.common.utillity.DateUtil;
 
 public class ReportByMonthTableModel extends AbstractTableModel {
 	

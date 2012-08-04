@@ -8,7 +8,7 @@ import javax.swing.table.DefaultTableModel;
 
 import pala.bean.InputItem;
 import pala.bean.Item;
-import pala.gui.DateUtil;
+import pala.common.utillity.DateUtil;
 
 public class ReportTableModel extends AbstractTableModel {
 	
