@@ -150,7 +150,7 @@ public class MainApp implements CallBackHandler{
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		//Locale.setDefault(new Locale("vi", "VN"));
+		Locale.setDefault(new Locale("vi", "VN"));
 		frame = new JFrame();
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("C:\\Users\\Phuoc Dang\\git\\pala-finance\\src\\main\\resources\\piggy-bank-icon.png"));
 		frame.setBounds(100, 100, 723, 502);
