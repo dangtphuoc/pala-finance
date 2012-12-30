@@ -5,7 +5,7 @@ import java.util.Date;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 
-import pala.gui.IncomeType;
+import pala.finance.ui.IncomeType;
 
 @NodeEntity
 public class IncomeItem {

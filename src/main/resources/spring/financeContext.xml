@@ -11,9 +11,10 @@
 
 	<context:spring-configured/>
     <context:annotation-config/>
-	
+    <context:component-scan base-package="pala.finance" />
+    
     <neo4j:config storeDirectory="target/finance-db"/>
-    <neo4j:repositories base-package="pala"/>
+    <neo4j:repositories base-package="pala.finance.repository"/>
     
 </beans>
 
